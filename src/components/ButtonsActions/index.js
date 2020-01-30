@@ -5,13 +5,13 @@ import Pin from '../../assets/pin.png'
 import Timer from '../../assets/timer.png'
 // import { Container } from './styles';
 
-export default function ButtonsActions () {
+export default function ButtonsActions ({ onPinPress }) {
   return (
     <View style={styles.buttonsContainer}>
-      <TouchableOpacity style={styles.buttonContainer}>
+      <TouchableOpacity activeOpacity={0.7} style={styles.buttonContainer}>
         <Image source={Timer} resizeMode='contain' style={styles.buttonsIcon} />
       </TouchableOpacity>
-      <TouchableOpacity style={styles.buttonContainer}>
+      <TouchableOpacity onPress={onPinPress} activeOpacity={0.7} style={styles.buttonContainer}>
         <Image source={Pin} resizeMode='contain' style={styles.buttonsIcon} />
       </TouchableOpacity>
     </View>

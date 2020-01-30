@@ -1,0 +1,6 @@
+{
+  "name": "src",
+  "standard": {
+    "parser": "babel-eslint"
+  }
+}
