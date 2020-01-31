@@ -12,8 +12,10 @@ export default class Main extends Component {
     this.state = {
       height: Dimensions.get('window').height,
       width: Dimensions.get('window').width,
-      createPinAnimation: new Animated.Value(100),
-      createPinChecked: false
+      verticalAnimation: new Animated.Value(100),
+      horizontalAnimation: new Animated.Value(100),
+      verticalActive: false,
+      horizontalActive: false
     }
   }
 
@@ -25,14 +27,24 @@ export default class Main extends Component {
     Dimensions.addEventListener('change', this.handler)
   }
 
-  handlePinPress = () => {
-    const { createPinChecked } = this.state
-    const finalValue = !createPinChecked ? 0 : 100
-    Animated.timing(this.state.createPinAnimation, {
+  handleHorizontalPress = () => {
+    const { horizontalActive } = this.state
+    const finalValue = !horizontalActive ? 0 : 100
+    Animated.timing(this.state.horizontalAnimation, {
       toValue: finalValue,
       duration: 900
     }).start()
-    this.setState({ createPinChecked: !createPinChecked })
+    this.setState({ horizontalActive: !horizontalActive })
+  }
+
+  handlePinPress = () => {
+    const { verticalActive } = this.state
+    const finalValue = !verticalActive ? 0 : 100
+    Animated.timing(this.state.verticalAnimation, {
+      toValue: finalValue,
+      duration: 900
+    }).start()
+    this.setState({ verticalActive: !verticalActive })
   }
 
   handler = ({ window }) => this.setState({ height: window.height, width: window.width })
@@ -43,7 +55,7 @@ export default class Main extends Component {
         <Text style={styles.leftTitle}>{item.time.start}</Text>
       </View>
       <View style={styles.centerContainer}>
-        <TouchableOpacity onPress={this.handlePinPress} style={styles.timeIconContainer}>
+        <TouchableOpacity onPress={this.handleHorizontalPress} style={styles.timeIconContainer}>
           <Image source={Diaper} resizeMode='contain' style={styles.pinTimeIcon} />
         </TouchableOpacity>
         <View style={styles.arrowDown} />
@@ -57,7 +69,7 @@ export default class Main extends Component {
   handlePinTransform = () => ({
     transform: [
       {
-        translateY: this.state.createPinAnimation.interpolate({
+        translateY: this.state.verticalAnimation.interpolate({
           inputRange: [0, 100],
           outputRange: [-(this.state.height / 2), this.state.height]
         })
@@ -65,12 +77,34 @@ export default class Main extends Component {
     ]
   })
 
-  handleMainTransform = () => ({
+  handleExtraTransform = () => ({
     transform: [
       {
-        translateY: this.state.createPinAnimation.interpolate({
+        translateX: this.state.horizontalAnimation.interpolate({
+          inputRange: [0, 100],
+          outputRange: [-(this.state.width / 2), this.state.width]
+        })
+      }
+    ]
+  })
+
+  handleVerticalTransform = () => ({
+    transform: [
+      {
+        translateY: this.state.verticalAnimation.interpolate({
           inputRange: [0, 100],
           outputRange: [-(this.state.height / 2), (this.state.height / 2)]
+        })
+      }
+    ]
+  })
+
+  handleHorizontalTransform = () => ({
+    transform: [
+      {
+        translateX: this.state.horizontalAnimation.interpolate({
+          inputRange: [0, 100],
+          outputRange: [-(this.state.width / 2), (this.state.width / 2)]
         })
       }
     ]
@@ -81,19 +115,30 @@ export default class Main extends Component {
     return (
       <View style={styles.container}>
         <StatusBar backgroundColor={colors.backgroundColor} barStyle='light-content' />
-        <Animated.View style={[styles.mainContainer, { height }, this.handleMainTransform()]}>
-          <FlatList
-            data={timeLine}
-            inverted
-            keyExtractor={item => item.id.toString()}
-            renderItem={this.renderTimeLine}
-            showsVerticalScrollIndicator={false}
-            ListHeaderComponentStyle={{ marginTop: 120 }}
-            ListHeaderComponent={() => <View style={{ height: 200 }} />}
-          />
-          <ButtonsActions onPinPress={this.handlePinPress} />
+        <Animated.View style={[styles.mainContainer, { height }, this.handleVerticalTransform()]}>
+          <Animated.View style={[styles.timeLineContainer, { width }, this.handleHorizontalTransform()]}>
+            <FlatList
+              data={timeLine}
+              inverted
+              keyExtractor={item => item.id.toString()}
+              renderItem={this.renderTimeLine}
+              showsVerticalScrollIndicator={false}
+              ListHeaderComponentStyle={{ marginTop: 120 }}
+              ListHeaderComponent={() => <View style={{ height: 200 }} />}
+            />
+            <ButtonsActions onPinPress={this.handlePinPress} />
+          </Animated.View>
+          <Animated.View style={[styles.sideContainer, { width }, this.handleExtraTransform()]}>
+            <TouchableOpacity onPress={this.handleHorizontalPress}>
+              <Text style={{
+                color: colors.primaryTextColor
+              }}
+              >Pagina Vertical
+              </Text>
+            </TouchableOpacity>
+          </Animated.View>
         </Animated.View>
-        <Animated.View style={[styles.pinPageContainer, { height, width }, this.handlePinTransform()]}>
+        <Animated.View style={[styles.pinPageContainer, { height }, this.handlePinTransform()]}>
           <CreatePin onPressPin={this.handlePinPress} />
         </Animated.View>
       </View>
@@ -113,6 +158,15 @@ const styles = StyleSheet.create({
     paddingBottom: 20
   },
   mainContainer: {
+    flexDirection: 'row'
+  },
+  timeLineContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  sideContainer: {
+    flexGrow: 1,
     justifyContent: 'center',
     alignItems: 'center'
   },
