@@ -6,6 +6,7 @@ const colors = {
   sleepColor: '#A846A0',
   bathColor: '#70D6FF',
   noteColor: '#23CE6B',
+  activeColor: '#73BE82',
   primaryTextColor: '#fff',
   secondaryTextColor: '#EBEBEB'
 }

@@ -12,7 +12,7 @@ const timeLine = [
     id: 2,
     type: 'diaper',
     category: 'yellow',
-    title: 'Fralda',
+    title: 'Amamentação',
     description: 'poo',
     time: { start: '14:25', duration: '12min' }
   },

@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import { View, Image, StyleSheet, TouchableOpacity, FlatList, Text } from 'react-native'
 import { colors } from '../../constants'
-import Pin from 'src/assets/pin.png'
 import Breast from 'src/assets/breast.png'
 import Sleep from 'src/assets/sleep.png'
 import Diaper from 'src/assets/diaper.png'
@@ -48,17 +47,9 @@ export default class CreatePin extends Component {
   }
 
   render () {
-    const { onPressPin } = this.props
     const { menuList } = this.state
     return (
       <View style={styles.container}>
-        <View style={{ flexDirection: 'row', justifyContent: 'center' }}>
-          <Image source={Pin} resizeMode='contain' style={styles.buttonsIcon} />
-          <TouchableOpacity
-            onPress={onPressPin}
-            style={styles.closePin}
-          />
-        </View>
         <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 0 }}>
           <FlatList
             data={menuList}
@@ -78,7 +69,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: 20,
-    justifyContent: 'space-between'
+    justifyContent: 'flex-start'
   },
   buttonsIcon: {
     width: 50
