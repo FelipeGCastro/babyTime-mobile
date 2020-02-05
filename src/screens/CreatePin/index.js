@@ -7,36 +7,33 @@ import Diaper from 'src/assets/diaper.png'
 import Note from 'src/assets/note.png'
 import Bath from 'src/assets/duck.png'
 
+const menuList = [
+  { id: 1, color: colors.feedColor, icon: Breast, label: 'Alimentação', value: 'meal' },
+  { id: 2, color: colors.sleepColor, icon: Sleep, label: 'Sono', value: 'sleep' },
+  { id: 3, color: colors.diaperColor, icon: Diaper, label: 'Fralda', value: 'diaper' },
+  { id: 4, color: colors.noteColor, icon: Note, label: 'Anotação', value: 'note' },
+  { id: 5, color: colors.bathColor, icon: Bath, label: 'Banho', value: 'bath' }
+]
+
 export default class CreatePin extends Component {
   state = {
-    menuList: [
-      { id: 1, color: colors.feedColor, icon: Breast, label: 'Alimentação', value: 'meal', checked: false },
-      { id: 2, color: colors.sleepColor, icon: Sleep, label: 'Sono', value: 'sleep', checked: false },
-      { id: 3, color: colors.diaperColor, icon: Diaper, label: 'Fralda', value: 'diaper', checked: false },
-      { id: 4, color: colors.noteColor, icon: Note, label: 'Anotação', value: 'note', checked: false },
-      { id: 5, color: colors.bathColor, icon: Bath, label: 'Banho', value: 'bath', checked: false }
-    ]
+    checked: ''
   }
 
-  handleMenuItemPress = index => () => {
-    const newMenuList = this.state.menuList.map((item, idx) => {
-      if (idx === index) {
-        item.checked = !item.checked
-      } else {
-        item.checked = false
-      }
-      return item
-    })
-    this.setState({ menuList: newMenuList })
+  handleMenuItemPress = (item, position) => () => {
+    const { onAnimatedPress } = this.props
+    this.setState({ checked: item })
+    onAnimatedPress('vertical', position)
   }
 
   renderMenuItem = ({ item, index }) => {
+    const { checked } = this.state
     return (
       <TouchableOpacity
-        onPress={this.handleMenuItemPress(index)}
+        onPress={this.handleMenuItemPress(item.value, 'complete')}
         activeOpacity={0.7}
         style={[styles.buttonContainer,
-          item.checked && { borderBottomColor: item.color, borderBottomWidth: 2 }]}
+          item.value === checked && { borderBottomColor: item.color, borderBottomWidth: 2 }]}
       >
         <View style={[styles.iconContainer, { borderColor: item.color }]}>
           <Image source={item.icon} resizeMode='contain' style={styles.menuIcon} />
@@ -47,10 +44,9 @@ export default class CreatePin extends Component {
   }
 
   render () {
-    const { menuList } = this.state
     return (
       <View style={styles.container}>
-        <View style={{ alignItems: 'center', justifyContent: 'center', flexGrow: 0 }}>
+        <View style={{ justifyContent: 'center' }}>
           <FlatList
             data={menuList}
             keyExtractor={item => item.id.toString()}
@@ -59,6 +55,10 @@ export default class CreatePin extends Component {
           />
         </View>
         <View />
+        <TouchableOpacity
+          onPress={this.handleMenuItemPress(this.state.checked, 'close')}
+          style={{ width: 140, height: 45, backgroundColor: colors.activeColor, marginBottom: 20, alignSelf: 'center' }}
+        />
       </View>
     )
   }
@@ -68,8 +68,8 @@ const styles = StyleSheet.create({
   // PIN PAGE CONTAINER
   container: {
     flex: 1,
-    paddingTop: 20,
-    justifyContent: 'flex-start'
+    justifyContent: 'space-between',
+    backgroundColor: 'rgba(255,255,255,0.1)'
   },
   buttonsIcon: {
     width: 50

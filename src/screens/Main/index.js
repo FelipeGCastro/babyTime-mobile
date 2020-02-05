@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
-import { Animated, View, StyleSheet, FlatList, TouchableOpacity, StatusBar, Image, Text, Dimensions } from 'react-native'
+import { Animated, View, StyleSheet, FlatList, Platform, TouchableOpacity, StatusBar, Image, Text, Dimensions } from 'react-native'
 import { colors } from 'src/constants'
-import Diaper from 'src/assets/diaper.png'
 import LeftClose from 'src/assets/leftClose.png'
 import ButtonsActions from 'src/components/ButtonsActions'
 import timeLine from 'src/temp/timeLine'
@@ -25,52 +24,35 @@ export default class Main extends Component {
   }
 
   componentWillUnmount = () => {
-    Dimensions.addEventListener('change', this.handler)
+    Dimensions.removeEventListener('change', this.handler)
   }
 
-  handleAnimationPress = (direction, position) => () => {
+  handler = ({ window }) => {
+    console.log('orientation change', window.height, window.width)
+    this.setState({ height: window.height, width: window.width })
+  }
+
+  handleAnimationPress = (direction, position) => {
+    console.log('handleAnimationPress')
     const { horizontalActive, verticalActive, horizontalAnimation, verticalAnimation } = this.state
     const active = direction === 'vertical' ? verticalActive : horizontalActive
     const animation = direction === 'vertical' ? verticalAnimation : horizontalAnimation
-    const duration = direction === 'vertical' ? 1300 : 900
-    // const finalValue = !valueActive ? 0 : 100
+    const duration = direction === 'vertical' ? 900 : 800
     const finalValue = {
+      close: 100,
       half: !active ? 50 : 100,
-      complete: !active ? 0 : 100
+      complete: active ? 0 : 100
     }
+    console.log(active, animation, finalValue[position], direction, position, duration, verticalActive)
     Animated.timing(animation, {
       toValue: finalValue[position],
       duration,
       useNativeDriver: true
     }).start()
     this.setState(direction === 'vertical'
-      ? { verticalActive: !verticalActive }
+      ? { verticalActive: position === 'complete' ? verticalActive : !verticalActive }
       : { horizontalActive: !horizontalActive })
   }
-
-  handler = ({ window }) => this.setState({ height: window.height, width: window.width })
-
-  renderTimeLine = ({ item, index }) => (
-    <View style={[
-      styles.pinTimeContainer,
-      { width: this.state.width },
-      index % 2 === 0 && { flexDirection: 'row-reverse' }
-    ]}
-    >
-      <View style={[styles.leftContainer, index % 2 !== 0 && { alignItems: 'flex-end' }]}>
-        <Text style={styles.leftTitle}>{item.time.start}</Text>
-      </View>
-      <View style={styles.centerContainer}>
-        <TouchableOpacity activeOpacity={0.7} onPress={this.handleAnimationPress('horizontal', 'half')} style={styles.timeIconContainer}>
-          <Image source={Diaper} resizeMode='contain' style={styles.pinTimeIcon} />
-        </TouchableOpacity>
-        <View style={[styles.arrowDown, index === 0 && styles.arrowDownRound]} />
-      </View>
-      <View style={[styles.rightContainer, index % 2 === 0 && { alignItems: 'flex-end' }]}>
-        <Text style={styles.rightTitle}>{item.title}</Text>
-      </View>
-    </View>
-  )
 
   handleTransform = (name) => {
     const { height, width, horizontalAnimation, verticalAnimation } = this.state
@@ -99,9 +81,9 @@ export default class Main extends Component {
       below: {
         animation: verticalAnimation,
         finalValue: -(height / 2),
-        startValue: height,
+        startValue: height / 2,
         axio: 'translateY',
-        inputRange: [25, 100]
+        inputRange: [0, 100]
       }
     }
     const { axio, animation, finalValue, startValue, inputRange } = animationObj[name]
@@ -118,8 +100,43 @@ export default class Main extends Component {
     })
   }
 
+  renderTimeLine = ({ item, index }) => (
+    <View style={[
+      styles.pinTimeContainer,
+      { width: this.state.width },
+      index % 2 === 0 && { flexDirection: 'row-reverse' }
+    ]}
+    >
+      <View style={styles.leftContainer} />
+      <View style={styles.centerContainer}>
+        <View
+          style={[styles.arrowDown,
+            { backgroundColor: item.color },
+            index === 0 && styles.arrowDownRound]}
+        >
+          <Image source={LeftClose} resizeMode='contain' style={styles.downIcon} />
+        </View>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() => this.handleAnimationPress('horizontal', 'half')}
+        >
+          <View style={[styles.timeIconContainer, { borderColor: item.color }]}>
+
+            <Image source={item.icon} resizeMode='contain' style={styles.pinTimeIcon} />
+          </View>
+        </TouchableOpacity>
+      </View>
+      <View style={[styles.rightContainer, index % 2 === 0 && { alignItems: 'flex-end' }]}>
+        <Text style={styles.timeTitle}>{item.time.start}</Text>
+        <Text style={[styles.rightTitle, index % 2 === 0 && styles.alignTextRight]}>{item.time.duration}</Text>
+        <Text style={[styles.rightTitle, index % 2 === 0 && styles.alignTextRight]}>{item.title}</Text>
+      </View>
+    </View>
+  )
+
   render () {
     const { height, width, verticalActive } = this.state
+    console.log('render', height, width)
     return (
       <View style={styles.container}>
         <StatusBar backgroundColor={colors.backgroundColor} barStyle='light-content' />
@@ -131,25 +148,25 @@ export default class Main extends Component {
               keyExtractor={item => item.id.toString()}
               renderItem={this.renderTimeLine}
               showsVerticalScrollIndicator={false}
-              ListHeaderComponentStyle={{ marginTop: 120 }}
-              ListHeaderComponent={() => <View style={{ height: 200 }} />}
+              ListHeaderComponentStyle={{ marginTop: 60 }}
+              ListHeaderComponent={() => <View style={{ height: 150 }} />}
             />
             <ButtonsActions
               active={verticalActive}
-              onPinPress={this.handleAnimationPress('vertical', 'half')}
+              onPinPress={() => this.handleAnimationPress('vertical', 'half')}
             />
           </Animated.View>
           <Animated.View style={[styles.sideContainer, { width }, this.handleTransform('side')]}>
             <TouchableOpacity
               style={styles.leftArrowButton}
-              onPress={this.handleAnimationPress('horizontal', 'half')}
+              onPress={() => this.handleAnimationPress('horizontal', 'half')}
             >
               <Image source={LeftClose} resizeMode='contain' style={styles.leftArrowIcon} />
             </TouchableOpacity>
           </Animated.View>
         </Animated.View>
         <Animated.View style={[styles.pinPageContainer, { height }, this.handleTransform('below')]}>
-          <CreatePin />
+          <CreatePin onAnimatedPress={this.handleAnimationPress} />
         </Animated.View>
       </View>
     )
@@ -164,7 +181,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   pinPageContainer: {
-    paddingTop: 40,
+    paddingTop: Platform.OS === 'ios' ? 44 : 20,
     paddingBottom: 20
   },
   mainContainer: {
@@ -204,16 +221,22 @@ const styles = StyleSheet.create({
   pinTimeContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
-    alignItems: 'flex-start',
-    marginTop: -5
+    alignItems: 'flex-start'
   },
   timeIconContainer: {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 3
+    },
+    shadowOpacity: 0.5,
+    shadowRadius: 3.84,
+    elevation: 5,
     width: 60,
-    paddingTop: 5,
+    padding: 5,
     height: 60,
     borderRadius: 30,
     borderWidth: 5,
-    borderColor: colors.diaperColor,
     justifyContent: 'center',
     alignItems: 'center'
   },
@@ -221,10 +244,21 @@ const styles = StyleSheet.create({
     width: 40
   },
   arrowDown: {
-    height: 70,
+    flex: 1,
+    marginBottom: -0.8,
+    minHeight: 70,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 'auto',
     width: 15,
-    marginTop: -2,
-    backgroundColor: colors.diaperColor
+    marginTop: -2
+  },
+  downIcon: {
+    width: 15,
+    height: 30,
+    transform: [
+      { rotateZ: '-90deg' }
+    ]
   },
   arrowDownRound: {
     borderBottomRightRadius: 8,
@@ -232,6 +266,8 @@ const styles = StyleSheet.create({
   },
   centerContainer: {
     flexShrink: 1,
+    height: 'auto',
+    flexDirection: 'column-reverse',
     justifyContent: 'center',
     alignItems: 'center'
   },
@@ -239,16 +275,22 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10
   },
-  leftTitle: {
-    fontSize: 18,
+  timeTitle: {
+    fontSize: 20,
+    marginBottom: 3,
     color: colors.primaryTextColor
   },
   rightContainer: {
     flex: 1,
-    padding: 10
+    padding: 10,
+    paddingTop: 20
   },
   rightTitle: {
-    fontSize: 18,
-    color: colors.primaryTextColor
+    fontSize: 14,
+    marginBottom: 3,
+    color: colors.secondaryTextColor
+  },
+  alignTextRight: {
+    textAlign: 'right'
   }
 })
