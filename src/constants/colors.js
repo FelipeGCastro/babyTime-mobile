@@ -8,7 +8,8 @@ const colors = {
   noteColor: '#23CE6B',
   activeColor: '#73BE82',
   primaryTextColor: '#fff',
-  secondaryTextColor: '#EBEBEB'
+  secondaryTextColor: '#EBEBEB',
+  placeholderColor: '#C7C7C7'
 }
 
 export default colors

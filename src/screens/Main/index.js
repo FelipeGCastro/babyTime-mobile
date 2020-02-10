@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Animated, View, StyleSheet, FlatList, Platform, TouchableOpacity, StatusBar, Image, Text, Dimensions } from 'react-native'
+import { Animated, View, StyleSheet, FlatList, TouchableOpacity, StatusBar, Image, Text, Dimensions } from 'react-native'
 import { colors } from 'src/constants'
 import LeftClose from 'src/assets/leftClose.png'
 import ButtonsActions from 'src/components/ButtonsActions'
@@ -28,12 +28,10 @@ export default class Main extends Component {
   }
 
   handler = ({ window }) => {
-    console.log('orientation change', window.height, window.width)
     this.setState({ height: window.height, width: window.width })
   }
 
   handleAnimationPress = (direction, position) => {
-    console.log('handleAnimationPress')
     const { horizontalActive, verticalActive, horizontalAnimation, verticalAnimation } = this.state
     const active = direction === 'vertical' ? verticalActive : horizontalActive
     const animation = direction === 'vertical' ? verticalAnimation : horizontalAnimation
@@ -43,7 +41,6 @@ export default class Main extends Component {
       half: !active ? 50 : 100,
       complete: active ? 0 : 100
     }
-    console.log(active, animation, finalValue[position], direction, position, duration, verticalActive)
     Animated.timing(animation, {
       toValue: finalValue[position],
       duration,
@@ -136,7 +133,6 @@ export default class Main extends Component {
 
   render () {
     const { height, width, verticalActive } = this.state
-    console.log('render', height, width)
     return (
       <View style={styles.container}>
         <StatusBar backgroundColor={colors.backgroundColor} barStyle='light-content' />
@@ -181,7 +177,7 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   pinPageContainer: {
-    paddingTop: Platform.OS === 'ios' ? 44 : 20,
+    paddingTop: 44,
     paddingBottom: 20
   },
   mainContainer: {

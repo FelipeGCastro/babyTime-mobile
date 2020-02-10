@@ -1,6 +1,12 @@
 import React, { Component } from 'react'
-import { View, Image, StyleSheet, TouchableOpacity, FlatList, Text } from 'react-native'
-import { colors } from '../../constants'
+import { View, Image, StyleSheet, TouchableOpacity, FlatList, Text, Animated } from 'react-native'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import { colors } from 'src/constants'
+import Feed from './Feed'
+import SleepScreen from './Sleep'
+import DiaperScreen from './Diaper'
+import NoteScreen from './Note'
+import BathScreen from './Bath'
 import Breast from 'src/assets/breast.png'
 import Sleep from 'src/assets/sleep.png'
 import Diaper from 'src/assets/diaper.png'
@@ -8,7 +14,7 @@ import Note from 'src/assets/note.png'
 import Bath from 'src/assets/duck.png'
 
 const menuList = [
-  { id: 1, color: colors.feedColor, icon: Breast, label: 'Alimentação', value: 'meal' },
+  { id: 1, color: colors.feedColor, icon: Breast, label: 'Alimentação', value: 'feed' },
   { id: 2, color: colors.sleepColor, icon: Sleep, label: 'Sono', value: 'sleep' },
   { id: 3, color: colors.diaperColor, icon: Diaper, label: 'Fralda', value: 'diaper' },
   { id: 4, color: colors.noteColor, icon: Note, label: 'Anotação', value: 'note' },
@@ -17,13 +23,24 @@ const menuList = [
 
 export default class CreatePin extends Component {
   state = {
-    checked: ''
+    checked: '',
+    active: false,
+    animation: new Animated.Value(0),
+    comments: '',
+    option: '',
+    note: ''
   }
 
   handleMenuItemPress = (item, position) => () => {
     const { onAnimatedPress } = this.props
-    this.setState({ checked: item })
+    const { animation, active } = this.state
+    const finalValue = !active ? 100 : 0
+    Animated.timing(animation, {
+      toValue: finalValue,
+      duration: 400
+    }).start()
     onAnimatedPress('vertical', position)
+    this.setState({ checked: item, active: !active })
   }
 
   renderMenuItem = ({ item, index }) => {
@@ -43,9 +60,67 @@ export default class CreatePin extends Component {
     )
   }
 
+  handleChange = name => value => {
+    this.setState({ [name]: value })
+  }
+
+  objAnimation = () => ({
+    opacity: this.state.animation.interpolate({
+      inputRange: [0, 100],
+      outputRange: [0, 1]
+    }),
+    transform: [{
+      translateY: this.state.animation.interpolate({
+        inputRange: [0, 100],
+        outputRange: [40, 0]
+      })
+    }]
+  })
+
+  renderOptions = (checked) => {
+    const { comments, option, note } = this.state
+    const optionsObj = {
+      feed: (
+        <Feed
+          option={option}
+          onHandleChange={this.handleChange}
+          comments={comments}
+        />),
+      sleep: (
+        <SleepScreen
+          option={option}
+          comments={comments}
+          onHandleChange={this.handleChange}
+        />),
+      diaper: (
+        <DiaperScreen
+          option={option}
+          onHandleChange={this.handleChange}
+          comments={comments}
+        />),
+      note: (
+        <NoteScreen
+          onHandleChange={this.handleChange}
+          note={note}
+        />),
+      bath: (
+        <BathScreen
+          option={option}
+          onHandleChange={this.handleChange}
+          comments={comments}
+        />
+      )
+    }
+    return optionsObj[checked]
+  }
+
   render () {
+    const { checked } = this.state
     return (
-      <View style={styles.container}>
+      <KeyboardAwareScrollView
+        contentContainerStyle={[styles.container, { flexGrow: 1 }]}
+        keyboardShouldPersistTaps='handled'
+      >
         <View style={{ justifyContent: 'center' }}>
           <FlatList
             data={menuList}
@@ -55,11 +130,18 @@ export default class CreatePin extends Component {
           />
         </View>
         <View />
+        {!!checked && (
+          <Animated.View style={this.objAnimation()}>
+            {this.renderOptions(checked)}
+          </Animated.View>
+        )}
         <TouchableOpacity
           onPress={this.handleMenuItemPress(this.state.checked, 'close')}
-          style={{ width: 140, height: 45, backgroundColor: colors.activeColor, marginBottom: 20, alignSelf: 'center' }}
-        />
-      </View>
+          style={styles.close}
+        ><Text style={styles.buttonText}>Concluir</Text>
+
+        </TouchableOpacity>
+      </KeyboardAwareScrollView>
     )
   }
 }
@@ -67,9 +149,7 @@ export default class CreatePin extends Component {
 const styles = StyleSheet.create({
   // PIN PAGE CONTAINER
   container: {
-    flex: 1,
-    justifyContent: 'space-between',
-    backgroundColor: 'rgba(255,255,255,0.1)'
+    justifyContent: 'space-around'
   },
   buttonsIcon: {
     width: 50
@@ -98,6 +178,20 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 20,
     top: 20
+  },
+  close: {
+    width: 160,
+    height: 50,
+    backgroundColor: colors.activeColor,
+    marginBottom: 20,
+    borderRadius: 6,
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center'
+  },
+  buttonText: {
+    fontSize: 18,
+    color: colors.primaryTextColor
   }
 
   // TERMINA AQUI
