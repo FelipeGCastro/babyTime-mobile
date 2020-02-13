@@ -20,11 +20,11 @@ const menuList = [
   { id: 4, color: colors.noteColor, icon: Note, label: 'Anotação', value: 'note' },
   { id: 5, color: colors.bathColor, icon: Bath, label: 'Banho', value: 'bath' }
 ]
+console.log(menuList[0])
 
 export default class CreatePin extends Component {
   state = {
-    checked: '',
-    active: false,
+    checked: false,
     animation: new Animated.Value(0),
     comments: '',
     option: '',
@@ -33,14 +33,35 @@ export default class CreatePin extends Component {
 
   handleMenuItemPress = (item, position) => () => {
     const { onAnimatedPress } = this.props
-    const { animation, active } = this.state
-    const finalValue = !active ? 100 : 0
+    const { checked } = this.state
+    if (!checked) {
+      onAnimatedPress('vertical', position)
+      setTimeout(() => {
+        this.animationMenu(800)
+        this.setState({ checked: item })
+      }, 400)
+    } else {
+      this.animationMenu()
+      this.setState({ checked: item })
+    }
+  }
+
+  animationMenu = (duration = 500) => {
+    const { animation } = this.state
+    animation.setValue(0)
+    const finalValue = 100
     Animated.timing(animation, {
       toValue: finalValue,
-      duration: 400
+      duration
     }).start()
-    onAnimatedPress('vertical', position)
-    this.setState({ checked: item, active: !active })
+  }
+
+  handleClosoBottom = () => {
+    const { onAnimatedPress } = this.props
+    onAnimatedPress('vertical', 'close')
+    setTimeout(() => {
+      this.setState({ checked: false })
+    }, 800)
   }
 
   renderMenuItem = ({ item, index }) => {
@@ -136,7 +157,7 @@ export default class CreatePin extends Component {
           </Animated.View>
         )}
         <TouchableOpacity
-          onPress={this.handleMenuItemPress(this.state.checked, 'close')}
+          onPress={this.handleClosoBottom}
           style={styles.close}
         ><Text style={styles.buttonText}>Concluir</Text>
 
@@ -149,7 +170,8 @@ export default class CreatePin extends Component {
 const styles = StyleSheet.create({
   // PIN PAGE CONTAINER
   container: {
-    justifyContent: 'space-around'
+    justifyContent: 'space-between',
+    padding: 20
   },
   buttonsIcon: {
     width: 50

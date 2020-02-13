@@ -13,9 +13,9 @@ const options = [
 ]
 
 const Diaper = ({ comments, onHandleChange, option }) => {
-  const renderItem = (item) => {
+  const renderItem = item => {
     return (
-      <Option onHandleChange={onHandleChange} itemColor={colors.diaperColor} item={item} option={option} />
+      <Option key={item.id} onHandleChange={onHandleChange} itemColor={colors.diaperColor} item={item} option={option} />
     )
   }
 

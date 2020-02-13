@@ -131,38 +131,51 @@ export default class Main extends Component {
     </View>
   )
 
+  renderTimeLineContainer = verticalActive => (
+    <Animated.View style={[styles.timeLineContainer, { width: this.state.width }, this.handleTransform('horizontal')]}>
+      <FlatList
+        data={timeLine}
+        inverted
+        keyExtractor={item => item.id.toString()}
+        renderItem={this.renderTimeLine}
+        showsVerticalScrollIndicator={false}
+        ListHeaderComponentStyle={{ marginTop: 60 }}
+        ListHeaderComponent={() => <View style={{ height: 150 }} />}
+      />
+      <ButtonsActions
+        active={verticalActive}
+        onPinPress={() => this.handleAnimationPress('vertical', 'half')}
+      />
+    </Animated.View>
+  )
+
+  renderSideContainer = () => (
+    <Animated.View style={[styles.sideContainer, { width: this.state.width }, this.handleTransform('side')]}>
+      <TouchableOpacity
+        style={styles.leftArrowButton}
+        onPress={() => this.handleAnimationPress('horizontal', 'half')}
+      >
+        <Image source={LeftClose} resizeMode='contain' style={styles.leftArrowIcon} />
+      </TouchableOpacity>
+    </Animated.View>
+  )
+
   render () {
-    const { height, width, verticalActive } = this.state
+    const { height, verticalActive } = this.state
     return (
       <View style={styles.container}>
         <StatusBar backgroundColor={colors.backgroundColor} barStyle='light-content' />
         <Animated.View style={[styles.mainContainer, { height }, this.handleTransform('vertical')]}>
-          <Animated.View style={[styles.timeLineContainer, { width }, this.handleTransform('horizontal')]}>
-            <FlatList
-              data={timeLine}
-              inverted
-              keyExtractor={item => item.id.toString()}
-              renderItem={this.renderTimeLine}
-              showsVerticalScrollIndicator={false}
-              ListHeaderComponentStyle={{ marginTop: 60 }}
-              ListHeaderComponent={() => <View style={{ height: 150 }} />}
-            />
-            <ButtonsActions
-              active={verticalActive}
-              onPinPress={() => this.handleAnimationPress('vertical', 'half')}
-            />
-          </Animated.View>
-          <Animated.View style={[styles.sideContainer, { width }, this.handleTransform('side')]}>
-            <TouchableOpacity
-              style={styles.leftArrowButton}
-              onPress={() => this.handleAnimationPress('horizontal', 'half')}
-            >
-              <Image source={LeftClose} resizeMode='contain' style={styles.leftArrowIcon} />
-            </TouchableOpacity>
-          </Animated.View>
+
+          {this.renderTimeLineContainer(verticalActive)}
+
+          {this.renderSideContainer(verticalActive)}
+
         </Animated.View>
         <Animated.View style={[styles.pinPageContainer, { height }, this.handleTransform('below')]}>
+
           <CreatePin onAnimatedPress={this.handleAnimationPress} />
+
         </Animated.View>
       </View>
     )

@@ -16,7 +16,7 @@ const options = [
 const Feed = ({ option, onHandleChange, comments }) => {
   const renderItem = item => {
     return (
-      <Option onHandleChange={onHandleChange} itemColor={colors.feedColor} item={item} option={option} />
+      <Option key={item.id} onHandleChange={onHandleChange} itemColor={colors.feedColor} item={item} option={option} />
     )
   }
 
