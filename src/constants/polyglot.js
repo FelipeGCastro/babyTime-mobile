@@ -13,7 +13,8 @@ const ptBR = {
   begining: 'Início',
   end: 'Fim',
   hour: 'Hora',
-  date: 'Data'
+  date: 'Data',
+  conclude: 'Concluir'
 }
 
 const polyglot = new Polyglot()

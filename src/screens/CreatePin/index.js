@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { View, Image, StyleSheet, TouchableOpacity, FlatList, Text, Animated } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 
-import { colors } from 'src/constants'
+import { colors, polyglot } from 'src/constants'
 import Feed from './Feed'
 import SleepScreen from './Sleep'
 import DiaperScreen from './Diaper'
@@ -85,7 +85,6 @@ export default class CreatePin extends Component {
   }
 
   handleChange = name => value => {
-    console.log(name, value, 'handlechange')
     this.setState({ [name]: value })
     if (name === 'option') { this.animationMenu() }
   }
@@ -104,13 +103,13 @@ export default class CreatePin extends Component {
   })
 
   renderOptions = (checked) => {
-    const { comments, option, note, startTime, startDate, endTime, endDate } = this.state
-    console.log(comments, option, note, checked)
+    const { comments, option, note, startTime, startDate, endTime, endDate, ml } = this.state
     const optionsObj = {
       feed: (
         <Feed
           option={option}
           onHandleChange={this.handleChange}
+          ml={ml}
           comments={comments}
           startTime={startTime}
           startDate={startDate}
@@ -159,9 +158,24 @@ export default class CreatePin extends Component {
     return optionsObj[checked]
   }
 
+  verification = () => {
+    const {
+      checked,
+      option,
+      startTime,
+      startDate,
+      note
+    } = this.state
+    const verifyObj = {
+      note: !!(option) && !!(startTime) && !!(startDate) && !!(note),
+      default: !!(option) && !!(startTime) && !!(startDate)
+    }
+    console.log(verifyObj[checked] || verifyObj.default)
+    return verifyObj[checked] || verifyObj.default
+  }
+
   render () {
-    const { checked, option, startTime, startDate } = this.state
-    console.log(checked, option, startTime, startDate)
+    const { checked } = this.state
     return (
       <KeyboardAwareScrollView
         contentContainerStyle={[styles.container, { flexGrow: 1 }]}
@@ -181,12 +195,15 @@ export default class CreatePin extends Component {
             {this.renderOptions(checked)}
           </Animated.View>
         )}
-        <TouchableOpacity
-          onPress={this.handleClosoBottom}
-          style={styles.close}
-        ><Text style={styles.buttonText}>Concluir</Text>
-
-        </TouchableOpacity>
+        {this.verification() && (
+          <Animated.View style={[this.objAnimation()]}>
+            <TouchableOpacity
+              onPress={this.handleClosoBottom}
+              style={styles.close}
+            ><Text style={styles.buttonText}>{polyglot.t('conclude')}</Text>
+            </TouchableOpacity>
+          </Animated.View>
+        )}
       </KeyboardAwareScrollView>
     )
   }
