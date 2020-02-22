@@ -1,15 +1,15 @@
 import React from 'react'
 import { View, StyleSheet, Text, TextInput, TouchableOpacity, Image } from 'react-native'
 import { MyDatePicker } from 'src/components'
-import { colors } from 'src/constants'
+import { colors, polyglot } from 'src/constants'
 
 const Option = ({ onHandleChange, item, option, itemColor }) => {
   return (
     <TouchableOpacity
-      onPress={() => onHandleChange('option')(item.value)}
+      onPress={() => onHandleChange('option')(option ? '' : item)}
       activeOpacity={0.7}
       key={item.id}
-      style={[styles.buttonContainer, option === item.value && { borderBottomColor: itemColor, borderBottomWidth: 3 }]}
+      style={[styles.buttonContainer, option.value === item.value && { borderBottomColor: itemColor, borderBottomWidth: 3 }]}
     >
       <View style={[styles.iconContainer, { borderColor: itemColor }]}>
         <Image source={item.icon} resizeMode='contain' style={styles.optionIcon} />
@@ -37,27 +37,34 @@ const Comments = ({ comments, onHandleChange }) => {
   )
 }
 
-const TimeInputs = ({ comments, onHandleChange, startTime, startDate }) => {
+const TimeInputs = ({ onHandleChange, startTime, startDate, endTime, endDate }) => {
+  const date = (data, mode, placeholder, onDateChange, format, minDate) => (
+    <MyDatePicker
+      data={data}
+      mode={mode}
+      placeholder={placeholder}
+      dateInputStyle={styles.dateInputStyle}
+      styleContainer={{ width: 120 }}
+      format={format}
+      minDate={minDate}
+      onDateChange={onDateChange}
+    />
+  )
+  const dateFormat = 'DD/MM/YY'
   return (
     <View
       style={styles.commentContainer}
     >
-      <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-        <Text style={styles.titleComments}>Início:</Text>
-        <MyDatePicker
-          data={startTime}
-          mode='time'
-          placeholder='Data Início'
-          dateInputStyle={styles.dateInputStyle}
-          styleContainer={{ width: 120 }}
-        />
-        <MyDatePicker
-          data={startDate}
-          mode='date'
-          placeholder='Data Início'
-          dateInputStyle={styles.dateInputStyle}
-          styleContainer={{ width: 120 }}
-        />
+      <View style={styles.timerContainer}>
+        <Text style={styles.titleTime}>{polyglot.t('begining')}:</Text>
+        {date(startTime, 'time', polyglot.t('hour'), onHandleChange('startTime'), 'HH:mm', null)}
+        {date(startDate, 'date', polyglot.t('date'), onHandleChange('startDate'), dateFormat, null)}
+
+      </View>
+      <View style={styles.timerContainer}>
+        <Text style={styles.titleTime}>{polyglot.t('end')}:</Text>
+        {date(endTime, 'time', polyglot.t('hour'), onHandleChange('endTime'), 'HH:mm', startTime)}
+        {date(endDate, 'date', polyglot.t('date'), onHandleChange('endDate'), dateFormat, startDate)}
       </View>
     </View>
   )
@@ -70,7 +77,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20
   },
   titleComments: {
-    fontSize: 16,
+    fontSize: 18,
     color: colors.primaryTextColor,
     marginTop: 20,
     marginBottom: 10,
@@ -84,6 +91,7 @@ const styles = StyleSheet.create({
     fontSize: 16
   },
   buttonContainer: {
+    alignSelf: 'center',
     justifyContent: 'center',
     alignItems: 'center',
     marginHorizontal: 15,
@@ -108,8 +116,21 @@ const styles = StyleSheet.create({
   },
   dateInputStyle: {
     marginLeft: 15,
+    height: 44,
     borderRadius: 4,
+    borderColor: colors.primaryTextColor,
     borderWidth: 2
+  },
+  timerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 30
+  },
+  titleTime: {
+    fontSize: 20,
+    color: colors.primaryTextColor,
+    alignSelf: 'center'
   }
 })
 

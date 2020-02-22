@@ -1,7 +1,7 @@
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
 import { colors } from 'src/constants'
-import { Comments, Option } from './items'
+import { Comments, Option, TimeInputs } from './items'
 import Baby from 'src/assets/baby.png'
 import Woman from 'src/assets/woman.png'
 
@@ -10,7 +10,12 @@ const options = [
   { id: 2, value: 'mom', label: 'Mãe', icon: Woman }
 ]
 
-const Sleep = ({ comments, onHandleChange, option }) => {
+const Sleep = ({
+  comments, onHandleChange, option, startTime,
+  startDate,
+  endTime,
+  endDate
+}) => {
   const renderItem = item => {
     return (
       <Option key={item.id} onHandleChange={onHandleChange} itemColor={colors.sleepColor} item={item} option={option} />
@@ -19,49 +24,41 @@ const Sleep = ({ comments, onHandleChange, option }) => {
 
   return (
     <View
-      style={styles.container}
+      style={[styles.container, { justifyContent: option ? 'space-between' : 'flex-end' }]}
     >
-      <View style={styles.options}>
-        {options.map(renderItem)}
-      </View>
-      <Comments comments={comments} onHandleChange={onHandleChange} />
+      {option ? (
+        <>
+          <Option key={option.id} onHandleChange={onHandleChange} itemColor={colors.sleepColor} item={option} option={option} />
+          <TimeInputs
+            onHandleChange={onHandleChange}
+            startTime={startTime}
+            startDate={startDate}
+            endTime={endTime}
+            endDate={endDate}
+          />
+          <Comments comments={comments} onHandleChange={onHandleChange} />
+        </>
+      )
+        : (
+          <View style={styles.optionsContainer}>
+            {options.map(renderItem)}
+          </View>
+        )}
     </View>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
-    justifyContent: 'center',
-    alignItems: 'stretch'
+    flex: 1,
+    alignItems: 'stretch',
+    paddingTop: 10,
+    paddingBottom: 30
   },
-  buttonContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 10,
-    marginHorizontal: 20,
-    marginVertical: 15
-  },
-  optionIcon: {
-    width: 35
-  },
-  options: {
+  optionsContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  iconContainer: {
-    borderWidth: 3,
-    width: 60,
-    height: 60,
-    borderColor: colors.sleepColor,
-    borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 10
-  },
-  titleOption: {
-    fontSize: 18,
-    color: colors.primaryTextColor
+    flexWrap: 'wrap',
+    justifyContent: 'center'
   }
 })
 

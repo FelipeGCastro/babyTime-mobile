@@ -1,14 +1,26 @@
 import React from 'react'
 import { View, StyleSheet, TextInput, Text } from 'react-native'
 import { colors } from 'src/constants'
+import { TimeInputs } from './items'
 
-const Note = ({ note, onHandleChange, option }) => {
+const Note = ({
+  note, onHandleChange, startTime,
+  startDate,
+  endTime,
+  endDate
+}) => {
   const countNote = 280 - note.length
-
   return (
     <View
       style={styles.container}
     >
+      <TimeInputs
+        onHandleChange={onHandleChange}
+        startTime={startTime}
+        startDate={startDate}
+        endTime={endTime}
+        endDate={endDate}
+      />
       <TextInput
         value={note}
         style={styles.input}
@@ -18,7 +30,6 @@ const Note = ({ note, onHandleChange, option }) => {
         multiline
         returnKeyLabel='done'
         keyboardAppearance='dark'
-
         onChangeText={onHandleChange('note')}
       />
       <Text style={styles.countNote}>{countNote}</Text>
@@ -28,9 +39,11 @@ const Note = ({ note, onHandleChange, option }) => {
 
 const styles = StyleSheet.create({
   container: {
-    justifyContent: 'center',
+    flex: 1,
+    justifyContent: 'flex-end',
     alignItems: 'stretch',
-    paddingHorizontal: 20
+    paddingHorizontal: 20,
+    paddingBottom: 30
   },
   countNote: {
     fontSize: 14,

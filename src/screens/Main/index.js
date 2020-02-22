@@ -1,10 +1,12 @@
 import React, { Component } from 'react'
-import { Animated, View, StyleSheet, FlatList, TouchableOpacity, StatusBar, Image, Text, Dimensions } from 'react-native'
+import { Animated, View, StyleSheet, FlatList, TouchableOpacity, StatusBar, Image, Dimensions } from 'react-native'
 import { colors } from 'src/constants'
 import LeftClose from 'src/assets/leftClose.png'
 import ButtonsActions from 'src/components/ButtonsActions'
 import timeLine from 'src/temp/timeLine'
 import CreatePin from 'src/screens/CreatePin'
+import SideScreen from 'src/screens/SideScreen'
+import TimeLineItem from './TimeLineItem'
 
 export default class Main extends Component {
   constructor (props) {
@@ -98,37 +100,12 @@ export default class Main extends Component {
   }
 
   renderTimeLine = ({ item, index }) => (
-    <View style={[
-      styles.pinTimeContainer,
-      { width: this.state.width },
-      index % 2 === 0 && { flexDirection: 'row-reverse' }
-    ]}
-    >
-      <View style={styles.leftContainer} />
-      <View style={styles.centerContainer}>
-        <View
-          style={[styles.arrowDown,
-            { backgroundColor: item.color },
-            index === 0 && styles.arrowDownRound]}
-        >
-          <Image source={LeftClose} resizeMode='contain' style={styles.downIcon} />
-        </View>
-        <TouchableOpacity
-          activeOpacity={0.8}
-          onPress={() => this.handleAnimationPress('horizontal', 'half')}
-        >
-          <View style={[styles.timeIconContainer, { borderColor: item.color }]}>
-
-            <Image source={item.icon} resizeMode='contain' style={styles.pinTimeIcon} />
-          </View>
-        </TouchableOpacity>
-      </View>
-      <View style={[styles.rightContainer, index % 2 === 0 && { alignItems: 'flex-end' }]}>
-        <Text style={styles.timeTitle}>{item.time.start}</Text>
-        <Text style={[styles.rightTitle, index % 2 === 0 && styles.alignTextRight]}>{item.time.duration}</Text>
-        <Text style={[styles.rightTitle, index % 2 === 0 && styles.alignTextRight]}>{item.title}</Text>
-      </View>
-    </View>
+    <TimeLineItem
+      item={item}
+      index={index}
+      width={this.state.width}
+      onItemPress={this.handleAnimationPress}
+    />
   )
 
   renderTimeLineContainer = verticalActive => (
@@ -142,6 +119,7 @@ export default class Main extends Component {
         ListHeaderComponentStyle={{ marginTop: 60 }}
         ListHeaderComponent={() => <View style={{ height: 150 }} />}
       />
+      {this.renderLeftArrow()}
       <ButtonsActions
         active={verticalActive}
         onPinPress={() => this.handleAnimationPress('vertical', 'half')}
@@ -149,14 +127,20 @@ export default class Main extends Component {
     </Animated.View>
   )
 
-  renderSideContainer = () => (
-    <Animated.View style={[styles.sideContainer, { width: this.state.width }, this.handleTransform('side')]}>
+  renderLeftArrow = () => {
+    return (
       <TouchableOpacity
         style={styles.leftArrowButton}
         onPress={() => this.handleAnimationPress('horizontal', 'half')}
       >
         <Image source={LeftClose} resizeMode='contain' style={styles.leftArrowIcon} />
       </TouchableOpacity>
+    )
+  }
+
+  renderSideContainer = () => (
+    <Animated.View style={[styles.sideContainer, { width: this.state.width }, this.handleTransform('side')]}>
+      <SideScreen onAnimatedPress={this.handleAnimationPress} />
     </Animated.View>
   )
 
@@ -201,15 +185,14 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   sideContainer: {
-    flexGrow: 1,
-    backgroundColor: 'rgba(0,0,0,0.1)',
-    justifyContent: 'center',
-    alignItems: 'center'
+    flexGrow: 1
   },
   leftArrowButton: {
-    width: 44,
+    width: 50,
     height: 44,
-    borderRadius: 22,
+    borderBottomLeftRadius: 22,
+    borderTopLeftRadius: 22,
+    borderRightWidth: 0,
     borderWidth: 1.5,
     paddingRight: 5,
     paddingVertical: 5,
@@ -217,8 +200,8 @@ const styles = StyleSheet.create({
     borderColor: colors.primaryTextColor,
     position: 'absolute',
     justifyContent: 'center',
-    alignItems: 'center',
-    left: -18
+    alignItems: 'flex-start',
+    right: 0
   },
   leftArrowIcon: {
     transform: [
@@ -226,80 +209,5 @@ const styles = StyleSheet.create({
     ],
     width: 35,
     height: 35
-  },
-  pinTimeContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'flex-start'
-  },
-  timeIconContainer: {
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 3
-    },
-    shadowOpacity: 0.5,
-    shadowRadius: 3.84,
-    elevation: 5,
-    width: 60,
-    padding: 5,
-    height: 60,
-    borderRadius: 30,
-    borderWidth: 5,
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  pinTimeIcon: {
-    width: 40
-  },
-  arrowDown: {
-    flex: 1,
-    marginBottom: -0.8,
-    minHeight: 70,
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: 'auto',
-    width: 15,
-    marginTop: -2
-  },
-  downIcon: {
-    width: 15,
-    height: 30,
-    transform: [
-      { rotateZ: '-90deg' }
-    ]
-  },
-  arrowDownRound: {
-    borderBottomRightRadius: 8,
-    borderBottomLeftRadius: 8
-  },
-  centerContainer: {
-    flexShrink: 1,
-    height: 'auto',
-    flexDirection: 'column-reverse',
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  leftContainer: {
-    flex: 1,
-    padding: 10
-  },
-  timeTitle: {
-    fontSize: 20,
-    marginBottom: 3,
-    color: colors.primaryTextColor
-  },
-  rightContainer: {
-    flex: 1,
-    padding: 10,
-    paddingTop: 20
-  },
-  rightTitle: {
-    fontSize: 14,
-    marginBottom: 3,
-    color: colors.secondaryTextColor
-  },
-  alignTextRight: {
-    textAlign: 'right'
   }
 })

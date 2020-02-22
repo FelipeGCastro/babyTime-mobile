@@ -1,7 +1,7 @@
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
 import { colors } from 'src/constants'
-import { Comments, Option } from './items'
+import { Comments, Option, TimeInputs } from './items'
 import Poop from 'src/assets/poop.png'
 import Pee from 'src/assets/pee.png'
 import PoopAndPee from 'src/assets/poo-and-pee.png'
@@ -12,7 +12,15 @@ const options = [
   { id: 3, value: 'pooAndPee', label: 'Os Dois', icon: PoopAndPee }
 ]
 
-const Diaper = ({ comments, onHandleChange, option }) => {
+const Diaper = ({
+  comments,
+  onHandleChange,
+  option,
+  startTime,
+  startDate,
+  endTime,
+  endDate
+}) => {
   const renderItem = item => {
     return (
       <Option key={item.id} onHandleChange={onHandleChange} itemColor={colors.diaperColor} item={item} option={option} />
@@ -21,49 +29,41 @@ const Diaper = ({ comments, onHandleChange, option }) => {
 
   return (
     <View
-      style={styles.container}
+      style={[styles.container, { justifyContent: option ? 'space-between' : 'flex-end' }]}
     >
-      <View style={styles.options}>
-        {options.map(renderItem)}
-      </View>
-      <Comments comments={comments} onHandleChange={onHandleChange} />
+      {option ? (
+        <>
+          <Option key={option.id} onHandleChange={onHandleChange} itemColor={colors.diaperColor} item={option} option={option} />
+          <TimeInputs
+            onHandleChange={onHandleChange}
+            startTime={startTime}
+            startDate={startDate}
+            endTime={endTime}
+            endDate={endDate}
+          />
+          <Comments comments={comments} onHandleChange={onHandleChange} />
+        </>
+      )
+        : (
+          <View style={styles.optionsContainer}>
+            {options.map(renderItem)}
+          </View>
+        )}
     </View>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
-    justifyContent: 'center',
-    alignItems: 'stretch'
+    flex: 1,
+    alignItems: 'stretch',
+    paddingTop: 10,
+    paddingBottom: 30
   },
-  buttonContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 10,
-    marginHorizontal: 20,
-    marginVertical: 15
-  },
-  optionIcon: {
-    width: 35
-  },
-  options: {
+  optionsContainer: {
     flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center'
-  },
-  iconContainer: {
-    borderWidth: 3,
-    width: 60,
-    height: 60,
-    borderColor: colors.sleepColor,
-    borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 10
-  },
-  titleOption: {
-    fontSize: 18,
-    color: colors.primaryTextColor
+    flexWrap: 'wrap',
+    justifyContent: 'center'
   }
 })
 

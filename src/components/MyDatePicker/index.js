@@ -1,29 +1,53 @@
 import React, { Component } from 'react'
+import { StyleSheet } from 'react-native'
+import { colors } from 'src/constants'
 import DatePicker from 'react-native-datepicker'
 
 export default class MyDatePicker extends Component {
   render () {
     // const { dateInput, disabled, dateTouchBody, dateIcon, placeholderText, dateText } = this.props
-    const { placeholder, styleContainer, mode, data, dateInputStyle } = this.props
+    const {
+      placeholder,
+      styleContainer,
+      minDate,
+      maxDate,
+      format,
+      mode,
+      data,
+      dateInputStyle,
+      onDateChange
+    } = this.props
     return (
       <DatePicker
         style={styleContainer}
         date={data}
         mode={mode}
         placeholder={placeholder}
-        format='DD-MM-YYY'
-        minDate='2016-05-01'
-        maxDate='2016-06-01'
+        format={format}
+        minDate={minDate}
+        maxDate={maxDate}
         confirmBtnText='Confirm'
         showIcon={false}
         cancelBtnText='Cancel'
         customStyles={{
           dateIcon: null,
-          dateInput: dateInputStyle
+          dateInput: dateInputStyle,
+          dateText: styles.dateText,
+          placeholderText: styles.placeholderText
           // ... You can check the source to find the other keys.
         }}
-        onDateChange={(date) => { this.setState({ date: date }) }}
+        onDateChange={onDateChange}
       />
     )
   }
 }
+
+const styles = StyleSheet.create({
+  dateText: {
+    fontSize: 18,
+    color: colors.primaryTextColor
+  },
+  placeholderText: {
+    fontSize: 18
+  }
+})

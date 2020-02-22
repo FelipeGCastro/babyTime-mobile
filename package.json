@@ -10,7 +10,10 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@react-native-community/async-storage": "^1.8.0",
     "@react-native-community/masked-view": "^0.1.6",
+    "moment": "^2.24.0",
+    "node-polyglot": "^2.4.0",
     "react": "16.9.0",
     "react-native": "0.61.5",
     "react-native-datepicker": "^1.7.2",
@@ -21,7 +24,8 @@
     "react-native-screens": "^2.0.0-alpha.32",
     "react-navigation": "^4.0.10",
     "react-navigation-stack": "^2.0.16",
-    "reactotron-react-native": "^4.0.3"
+    "reactotron-react-native": "^4.0.3",
+    "uuid": "^3.4.0"
   },
   "devDependencies": {
     "@babel/core": "7.8.3",

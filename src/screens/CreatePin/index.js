@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { View, Image, StyleSheet, TouchableOpacity, FlatList, Text, Animated } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+
 import { colors } from 'src/constants'
 import Feed from './Feed'
 import SleepScreen from './Sleep'
@@ -20,14 +21,16 @@ const menuList = [
   { id: 4, color: colors.noteColor, icon: Note, label: 'Anotação', value: 'note' },
   { id: 5, color: colors.bathColor, icon: Bath, label: 'Banho', value: 'bath' }
 ]
-console.log(menuList[0])
-
 export default class CreatePin extends Component {
   state = {
     checked: false,
     animation: new Animated.Value(0),
     comments: '',
-    option: '',
+    option: false,
+    startTime: new Date(),
+    startDate: new Date(),
+    endTime: null,
+    endDate: null,
     note: ''
   }
 
@@ -38,11 +41,11 @@ export default class CreatePin extends Component {
       onAnimatedPress('vertical', position)
       setTimeout(() => {
         this.animationMenu(800)
-        this.setState({ checked: item })
+        this.setState({ checked: item, option: item === 'note' || item === 'bath' })
       }, 400)
     } else {
       this.animationMenu()
-      this.setState({ checked: item })
+      this.setState({ checked: item, option: item === 'note' || item === 'bath' })
     }
   }
 
@@ -82,7 +85,9 @@ export default class CreatePin extends Component {
   }
 
   handleChange = name => value => {
+    console.log(name, value, 'handlechange')
     this.setState({ [name]: value })
+    if (name === 'option') { this.animationMenu() }
   }
 
   objAnimation = () => ({
@@ -99,18 +104,25 @@ export default class CreatePin extends Component {
   })
 
   renderOptions = (checked) => {
-    const { comments, option, note } = this.state
+    const { comments, option, note, startTime, startDate, endTime, endDate } = this.state
+    console.log(comments, option, note, checked)
     const optionsObj = {
       feed: (
         <Feed
           option={option}
           onHandleChange={this.handleChange}
           comments={comments}
+          startTime={startTime}
+          startDate={startDate}
+          endTime={endTime}
+          endDate={endDate}
         />),
       sleep: (
         <SleepScreen
           option={option}
           comments={comments}
+          startTime={startTime}
+          startDate={startDate}
           onHandleChange={this.handleChange}
         />),
       diaper: (
@@ -118,17 +130,29 @@ export default class CreatePin extends Component {
           option={option}
           onHandleChange={this.handleChange}
           comments={comments}
+          startTime={startTime}
+          startDate={startDate}
+          endTime={endTime}
+          endDate={endDate}
         />),
       note: (
         <NoteScreen
           onHandleChange={this.handleChange}
           note={note}
+          startTime={startTime}
+          startDate={startDate}
+          endTime={endTime}
+          endDate={endDate}
         />),
       bath: (
         <BathScreen
           option={option}
           onHandleChange={this.handleChange}
           comments={comments}
+          startTime={startTime}
+          startDate={startDate}
+          endTime={endTime}
+          endDate={endDate}
         />
       )
     }
@@ -136,7 +160,8 @@ export default class CreatePin extends Component {
   }
 
   render () {
-    const { checked } = this.state
+    const { checked, option, startTime, startDate } = this.state
+    console.log(checked, option, startTime, startDate)
     return (
       <KeyboardAwareScrollView
         contentContainerStyle={[styles.container, { flexGrow: 1 }]}
@@ -151,8 +176,8 @@ export default class CreatePin extends Component {
           />
         </View>
         <View />
-        {!!checked && (
-          <Animated.View style={this.objAnimation()}>
+        {checked && (
+          <Animated.View style={[{ flex: 1 }, this.objAnimation()]}>
             {this.renderOptions(checked)}
           </Animated.View>
         )}
@@ -171,7 +196,7 @@ const styles = StyleSheet.create({
   // PIN PAGE CONTAINER
   container: {
     justifyContent: 'space-between',
-    padding: 20
+    paddingVertical: 20
   },
   buttonsIcon: {
     width: 50
