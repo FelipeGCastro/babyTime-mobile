@@ -2,14 +2,11 @@ import React from 'react'
 import { View, StyleSheet } from 'react-native'
 import { colors } from 'src/constants'
 import { Comments, Option, TimeInputs } from './items'
-import Poop from 'src/assets/poop.png'
-import Pee from 'src/assets/pee.png'
-import PoopAndPee from 'src/assets/poo-and-pee.png'
 
 const options = [
-  { id: 1, value: 'poop', label: 'Cocó', icon: Poop },
-  { id: 2, value: 'pee', label: 'Xixi', icon: Pee },
-  { id: 3, value: 'pooAndPee', label: 'Os Dois', icon: PoopAndPee }
+  'poop',
+  'pee',
+  'pooAndPee'
 ]
 
 const Diaper = ({
@@ -23,7 +20,7 @@ const Diaper = ({
 }) => {
   const renderItem = item => {
     return (
-      <Option key={item.id} onHandleChange={onHandleChange} itemColor={colors.diaperColor} item={item} option={option} />
+      <Option key={item} onHandleChange={onHandleChange} itemColor={colors.diaperColor} item={item} option={option} />
     )
   }
 
@@ -33,7 +30,7 @@ const Diaper = ({
     >
       {option ? (
         <>
-          <Option key={option.id} onHandleChange={onHandleChange} itemColor={colors.diaperColor} item={option} option={option} />
+          <Option onHandleChange={onHandleChange} itemColor={colors.diaperColor} item={option} option={option} />
           <TimeInputs
             onHandleChange={onHandleChange}
             startTime={startTime}

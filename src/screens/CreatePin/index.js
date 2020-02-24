@@ -1,25 +1,17 @@
 import React, { Component } from 'react'
 import { View, Image, StyleSheet, TouchableOpacity, FlatList, Text, Animated } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
-
-import { colors, polyglot } from 'src/constants'
-import Feed from './Feed'
-import SleepScreen from './Sleep'
-import DiaperScreen from './Diaper'
-import NoteScreen from './Note'
-import BathScreen from './Bath'
-import Breast from 'src/assets/breast.png'
-import Sleep from 'src/assets/sleep.png'
-import Diaper from 'src/assets/diaper.png'
-import Note from 'src/assets/note.png'
-import Bath from 'src/assets/duck.png'
+import AsyncStorage from '@react-native-community/async-storage'
+import v4 from 'uuid/v4'
+import { colors, polyglot, icons } from 'src/constants'
+import { Options } from 'src/components'
 
 const menuList = [
-  { id: 1, color: colors.feedColor, icon: Breast, label: 'Alimentação', value: 'feed' },
-  { id: 2, color: colors.sleepColor, icon: Sleep, label: 'Sono', value: 'sleep' },
-  { id: 3, color: colors.diaperColor, icon: Diaper, label: 'Fralda', value: 'diaper' },
-  { id: 4, color: colors.noteColor, icon: Note, label: 'Anotação', value: 'note' },
-  { id: 5, color: colors.bathColor, icon: Bath, label: 'Banho', value: 'bath' }
+  'feed',
+  'sleep',
+  'diaper',
+  'note',
+  'bath'
 ]
 export default class CreatePin extends Component {
   state = {
@@ -37,15 +29,19 @@ export default class CreatePin extends Component {
   handleMenuItemPress = (item, position) => () => {
     const { onAnimatedPress } = this.props
     const { checked } = this.state
+    const optionObj = {
+      note: 'note',
+      bath: 'bath'
+    }
     if (!checked) {
       onAnimatedPress('vertical', position)
       setTimeout(() => {
         this.animationMenu(800)
-        this.setState({ checked: item, option: item === 'note' || item === 'bath' })
+        this.setState({ checked: item, option: optionObj[item] || false })
       }, 400)
     } else {
       this.animationMenu()
-      this.setState({ checked: item, option: item === 'note' || item === 'bath' })
+      this.setState({ checked: item, option: optionObj[item] || false })
     }
   }
 
@@ -59,27 +55,42 @@ export default class CreatePin extends Component {
     }).start()
   }
 
-  handleClosoBottom = () => {
-    const { onAnimatedPress } = this.props
-    onAnimatedPress('vertical', 'close')
-    setTimeout(() => {
-      this.setState({ checked: false })
-    }, 800)
+  handleClosoBottom = async () => {
+    const { checked, comments, option, note, startTime, startDate, endTime, endDate, ml } = this.state
+    const { onAnimatedPress, onCreatePin } = this.props
+    const pinsObj = { id: v4(), type: checked, comments, option, startTime, startDate, note, endDate, endTime, ml }
+    try {
+      const value = await AsyncStorage.getItem('@storage_Pins')
+      let newPin = JSON.parse(value)
+      if (!newPin) {
+        newPin = []
+      }
+      newPin.push(pinsObj)
+      await AsyncStorage.setItem('@storage_Pins', JSON.stringify(newPin))
+      console.log(newPin)
+      onCreatePin('pins')(newPin.reverse())
+      onAnimatedPress('vertical', 'close')
+      setTimeout(() => {
+        this.setState({ checked: false })
+      }, 800)
+    } catch (e) {
+      console.log(e)
+    }
   }
 
   renderMenuItem = ({ item, index }) => {
     const { checked } = this.state
     return (
       <TouchableOpacity
-        onPress={this.handleMenuItemPress(item.value, 'complete')}
+        onPress={this.handleMenuItemPress(item, 'complete')}
         activeOpacity={0.7}
         style={[styles.buttonContainer,
-          item.value === checked && { borderBottomColor: item.color, borderBottomWidth: 2 }]}
+          item === checked && { borderBottomColor: colors[item], borderBottomWidth: 2 }]}
       >
-        <View style={[styles.iconContainer, { borderColor: item.color }]}>
-          <Image source={item.icon} resizeMode='contain' style={styles.menuIcon} />
+        <View style={[styles.iconContainer, { borderColor: colors[item] }]}>
+          <Image source={icons[item]} resizeMode='contain' style={styles.menuIcon} />
         </View>
-        <Text style={{ fontSize: 16, marginBottom: 10, color: colors.primaryTextColor }}>{item.label}</Text>
+        <Text style={{ fontSize: 16, marginBottom: 10, color: colors.primaryTextColor }}>{polyglot.t(item)}</Text>
       </TouchableOpacity>
     )
   }
@@ -102,65 +113,25 @@ export default class CreatePin extends Component {
     }]
   })
 
-  renderOptions = (checked) => {
+  renderOptions = (item) => {
     const { comments, option, note, startTime, startDate, endTime, endDate, ml } = this.state
-    const optionsObj = {
-      feed: (
-        <Feed
-          option={option}
-          onHandleChange={this.handleChange}
-          ml={ml}
-          comments={comments}
-          startTime={startTime}
-          startDate={startDate}
-          endTime={endTime}
-          endDate={endDate}
-        />),
-      sleep: (
-        <SleepScreen
-          option={option}
-          comments={comments}
-          startTime={startTime}
-          startDate={startDate}
-          onHandleChange={this.handleChange}
-        />),
-      diaper: (
-        <DiaperScreen
-          option={option}
-          onHandleChange={this.handleChange}
-          comments={comments}
-          startTime={startTime}
-          startDate={startDate}
-          endTime={endTime}
-          endDate={endDate}
-        />),
-      note: (
-        <NoteScreen
-          onHandleChange={this.handleChange}
-          note={note}
-          startTime={startTime}
-          startDate={startDate}
-          endTime={endTime}
-          endDate={endDate}
-        />),
-      bath: (
-        <BathScreen
-          option={option}
-          onHandleChange={this.handleChange}
-          comments={comments}
-          startTime={startTime}
-          startDate={startDate}
-          endTime={endTime}
-          endDate={endDate}
-        />
-      )
-    }
-    return optionsObj[checked]
+    return (
+      <Options
+        item={item}
+        option={option}
+        onHandleChange={this.handleChange}
+        ml={ml}
+        comments={comments}
+        startTime={startTime}
+        startDate={startDate}
+        endTime={endTime}
+        note={note}
+        endDate={endDate}
+      />)
   }
 
-  verification = () => {
+  verification = (checked) => {
     const {
-      checked,
       option,
       startTime,
       startDate,
@@ -170,12 +141,14 @@ export default class CreatePin extends Component {
       note: !!(option) && !!(startTime) && !!(startDate) && !!(note),
       default: !!(option) && !!(startTime) && !!(startDate)
     }
-    console.log(verifyObj[checked] || verifyObj.default)
-    return verifyObj[checked] || verifyObj.default
+    const verified = verifyObj[checked] === undefined ? verifyObj.default : verifyObj[checked]
+
+    return verified
   }
 
   render () {
     const { checked } = this.state
+    const verification = this.verification(checked)
     return (
       <KeyboardAwareScrollView
         contentContainerStyle={[styles.container, { flexGrow: 1 }]}
@@ -184,7 +157,7 @@ export default class CreatePin extends Component {
         <View style={{ justifyContent: 'center' }}>
           <FlatList
             data={menuList}
-            keyExtractor={item => item.id.toString()}
+            keyExtractor={item => item}
             renderItem={this.renderMenuItem}
             horizontal
           />
@@ -195,7 +168,7 @@ export default class CreatePin extends Component {
             {this.renderOptions(checked)}
           </Animated.View>
         )}
-        {this.verification() && (
+        {verification ? (
           <Animated.View style={[this.objAnimation()]}>
             <TouchableOpacity
               onPress={this.handleClosoBottom}
@@ -203,7 +176,7 @@ export default class CreatePin extends Component {
             ><Text style={styles.buttonText}>{polyglot.t('conclude')}</Text>
             </TouchableOpacity>
           </Animated.View>
-        )}
+        ) : null}
       </KeyboardAwareScrollView>
     )
   }

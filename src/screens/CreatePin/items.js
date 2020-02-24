@@ -1,20 +1,19 @@
 import React from 'react'
 import { View, StyleSheet, Text, TextInput, TouchableOpacity, Image } from 'react-native'
 import { MyDatePicker } from 'src/components'
-import { colors, polyglot } from 'src/constants'
+import { colors, polyglot, icons } from 'src/constants'
 
 const Option = ({ onHandleChange, item, option, itemColor }) => {
   return (
     <TouchableOpacity
       onPress={() => onHandleChange('option')(option ? '' : item)}
       activeOpacity={0.7}
-      key={item.id}
-      style={[styles.buttonContainer, option.value === item.value && { borderBottomColor: itemColor, borderBottomWidth: 3 }]}
+      style={[styles.buttonContainer, option === item && { borderBottomColor: itemColor, borderBottomWidth: 3 }]}
     >
       <View style={[styles.iconContainer, { borderColor: itemColor }]}>
-        <Image source={item.icon} resizeMode='contain' style={styles.optionIcon} />
+        <Image source={icons[item]} resizeMode='contain' style={styles.optionIcon} />
       </View>
-      <Text style={styles.titleOption}>{item.label}</Text>
+      <Text style={styles.titleOption}>{polyglot.t(item)}</Text>
     </TouchableOpacity>
   )
 }

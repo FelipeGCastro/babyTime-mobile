@@ -1,12 +1,12 @@
 import React, { Component } from 'react'
-import { Animated, View, StyleSheet, FlatList, TouchableOpacity, StatusBar, Image, Dimensions } from 'react-native'
+import { Animated, View, StyleSheet, TouchableOpacity, StatusBar, Image, Dimensions } from 'react-native'
+import AsyncStorage from '@react-native-community/async-storage'
 import { colors } from 'src/constants'
 import LeftClose from 'src/assets/leftClose.png'
 import ButtonsActions from 'src/components/ButtonsActions'
-import timeLine from 'src/temp/timeLine'
 import CreatePin from 'src/screens/CreatePin'
 import SideScreen from 'src/screens/SideScreen'
-import TimeLineItem from './TimeLineItem'
+import TimeLine from './TimeLine'
 
 export default class Main extends Component {
   constructor (props) {
@@ -17,12 +17,43 @@ export default class Main extends Component {
       verticalAnimation: new Animated.Value(100),
       horizontalAnimation: new Animated.Value(100),
       verticalActive: false,
-      horizontalActive: false
+      horizontalActive: false,
+      pinsSelect: 'all',
+      editing: false,
+      pins: []
     }
   }
 
-  componentDidMount = () => {
+  componentDidMount = async () => {
     Dimensions.addEventListener('change', this.handler)
+    const pins = await this.getData()
+    !!pins && this.setState({ pins })
+  }
+
+  getData = async () => {
+    try {
+      const value = await AsyncStorage.getItem('@storage_Pins')
+      if (value !== null) {
+        return JSON.parse(value).reverse()
+      }
+    } catch (e) {
+      // error reading value
+      console.log(e)
+    }
+  }
+
+  handleChangePins = async (itemFilter) => {
+    const pins = await this.getData()
+    if (itemFilter === 'all') {
+      this.setState({ pins })
+    } else {
+      const newPins = pins.filter((item, index) => {
+        if (item.type === itemFilter) {
+          return item
+        }
+      })
+      this.setState({ pins: newPins })
+    }
   }
 
   componentWillUnmount = () => {
@@ -35,13 +66,14 @@ export default class Main extends Component {
 
   handleAnimationPress = (direction, position) => {
     const { horizontalActive, verticalActive, horizontalAnimation, verticalAnimation } = this.state
+    console.log(horizontalActive, position)
     const active = direction === 'vertical' ? verticalActive : horizontalActive
     const animation = direction === 'vertical' ? verticalAnimation : horizontalAnimation
     const duration = direction === 'vertical' ? 900 : 800
     const finalValue = {
       close: 100,
-      half: !active ? 50 : 100,
-      complete: active ? 0 : 100
+      half: active ? 100 : 50,
+      complete: 0
     }
     Animated.timing(animation, {
       toValue: finalValue[position],
@@ -73,9 +105,9 @@ export default class Main extends Component {
       side: {
         animation: horizontalAnimation,
         finalValue: -(width / 2),
-        startValue: width,
+        startValue: width / 2,
         axio: 'translateX',
-        inputRange: [25, 100]
+        inputRange: [0, 100]
       },
       below: {
         animation: verticalAnimation,
@@ -99,34 +131,6 @@ export default class Main extends Component {
     })
   }
 
-  renderTimeLine = ({ item, index }) => (
-    <TimeLineItem
-      item={item}
-      index={index}
-      width={this.state.width}
-      onItemPress={this.handleAnimationPress}
-    />
-  )
-
-  renderTimeLineContainer = verticalActive => (
-    <Animated.View style={[styles.timeLineContainer, { width: this.state.width }, this.handleTransform('horizontal')]}>
-      <FlatList
-        data={timeLine}
-        inverted
-        keyExtractor={item => item.id.toString()}
-        renderItem={this.renderTimeLine}
-        showsVerticalScrollIndicator={false}
-        ListHeaderComponentStyle={{ marginTop: 60 }}
-        ListHeaderComponent={() => <View style={{ height: 150 }} />}
-      />
-      {this.renderLeftArrow()}
-      <ButtonsActions
-        active={verticalActive}
-        onPinPress={() => this.handleAnimationPress('vertical', 'half')}
-      />
-    </Animated.View>
-  )
-
   renderLeftArrow = () => {
     return (
       <TouchableOpacity
@@ -138,27 +142,38 @@ export default class Main extends Component {
     )
   }
 
-  renderSideContainer = () => (
-    <Animated.View style={[styles.sideContainer, { width: this.state.width }, this.handleTransform('side')]}>
-      <SideScreen onAnimatedPress={this.handleAnimationPress} />
-    </Animated.View>
-  )
+  handleChange = name => value => {
+    this.setState({ [name]: value })
+  }
+
+  handleMenuItemPress = async value => {
+    await this.handleChangePins(value)
+    this.handleAnimationPress('horizontal', 'close')
+  }
 
   render () {
-    const { height, verticalActive } = this.state
+    const { height, verticalActive, pins, editing, width, pinsSelect } = this.state
     return (
       <View style={styles.container}>
         <StatusBar backgroundColor={colors.backgroundColor} barStyle='light-content' />
         <Animated.View style={[styles.mainContainer, { height }, this.handleTransform('vertical')]}>
+          <Animated.View style={[styles.timeLineContainer, { width }, this.handleTransform('horizontal')]}>
+            <TimeLine pins={pins} width={width} onChange={this.handleChange} pinsSelect={pinsSelect} onAnimationPress={this.handleAnimationPress} />
+            {this.renderLeftArrow()}
+            <ButtonsActions
+              active={verticalActive}
+              onPinPress={() => this.handleAnimationPress('vertical', 'half')}
+            />
+          </Animated.View>
 
-          {this.renderTimeLineContainer(verticalActive)}
-
-          {this.renderSideContainer(verticalActive)}
+          <Animated.View style={[styles.sideContainer, { width: this.state.width }, this.handleTransform('side')]}>
+            <SideScreen editing={editing} onItemPress={this.handleMenuItemPress} />
+          </Animated.View>
 
         </Animated.View>
         <Animated.View style={[styles.pinPageContainer, { height }, this.handleTransform('below')]}>
 
-          <CreatePin onAnimatedPress={this.handleAnimationPress} />
+          <CreatePin onAnimatedPress={this.handleAnimationPress} onCreatePin={this.handleChange} />
 
         </Animated.View>
       </View>

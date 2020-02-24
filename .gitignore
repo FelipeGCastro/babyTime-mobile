@@ -20,6 +20,7 @@ DerivedData
 *.hmap
 *.ipa
 *.xcuserstate
+toDo.js
 
 # Android/IntelliJ
 #

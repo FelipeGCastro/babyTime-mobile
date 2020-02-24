@@ -3,7 +3,7 @@ import { View, StyleSheet } from 'react-native'
 // import { colors } from 'src/constants'
 import { Comments, TimeInputs } from './items'
 
-const Bath = ({ comments, onHandleChange, option, startTime, startDate, endTime, endDate }) => {
+const Bath = ({ comments, onHandleChange, startTime, startDate, endTime, endDate }) => {
   return (
     <View
       style={styles.container}

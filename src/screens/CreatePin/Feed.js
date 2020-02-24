@@ -1,16 +1,13 @@
 import React from 'react'
 import { View, StyleSheet, FlatList, TouchableOpacity, Text } from 'react-native'
 import { colors } from 'src/constants'
-import Breast from 'src/assets/breast.png'
-import Bottle from 'src/assets/bottle.png'
-import Bowl from 'src/assets/super-bowl.png'
 import { Comments, Option, TimeInputs } from './items'
 const options = [
-  { id: 1, value: 'left', label: 'Esquerdo', icon: Breast },
-  { id: 2, value: 'right', label: 'Direito', icon: Breast },
-  { id: 3, value: 'formula', label: 'Fórmula', icon: Bottle },
-  { id: 4, value: 'matern', label: 'Materno', icon: Bottle },
-  { id: 5, value: 'papa', label: 'Papinha', icon: Bowl }
+  'left',
+  'right',
+  'formula',
+  'matern',
+  'papa'
 ]
 var i = 30
 var mlOptions = []
@@ -28,7 +25,7 @@ const Feed = ({
 }) => {
   const renderItem = item => {
     return (
-      <Option key={item.id} onHandleChange={onHandleChange} itemColor={colors.feedColor} item={item} option={option} />
+      <Option key={item} onHandleChange={onHandleChange} itemColor={colors.feedColor} item={item} option={option} />
     )
   }
 
@@ -41,7 +38,7 @@ const Feed = ({
           ml === item && { borderBottomColor: colors.feedColor, borderBottomWidth: 4 }]}
       >
         <View style={[styles.iconContainer, { borderColor: colors.feedColor }]}>
-          <Text style={styles.numberText}>{item}</Text>
+          <Text style={styles.numberText}>{item.toString()}</Text>
           <Text style={styles.mlText}>ml</Text>
         </View>
       </TouchableOpacity>
@@ -55,7 +52,6 @@ const Feed = ({
         <>
           <View style={{ marginBottom: 10 }}>
             <Option
-              key={option.id}
               onHandleChange={onHandleChange}
               itemColor={colors.feedColor}
               item={option} option={option}
@@ -71,7 +67,7 @@ const Feed = ({
           <View style={{ marginBottom: 10 }}>
             <FlatList
               data={mlOptions}
-              keyExtractor={item => item}
+              keyExtractor={item => item.toString()}
               horizontal
               renderItem={renderMlItem}
             />

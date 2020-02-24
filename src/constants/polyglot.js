@@ -14,7 +14,13 @@ const ptBR = {
   end: 'Fim',
   hour: 'Hora',
   date: 'Data',
-  conclude: 'Concluir'
+  conclude: 'Concluir',
+  baby: 'Bebê',
+  mom: 'Mãe',
+  poop: 'Cocô',
+  pee: 'Xixi',
+  pooAndPee: 'Cocô/Xixi',
+  all: 'Todos'
 }
 
 const polyglot = new Polyglot()

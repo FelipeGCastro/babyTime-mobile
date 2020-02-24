@@ -1,49 +1,103 @@
 import React, { Component } from 'react'
 
 import { View, FlatList, TouchableOpacity, StyleSheet, Text } from 'react-native'
-import { colors } from 'src/constants'
+import { colors, polyglot } from 'src/constants'
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+import { Options } from 'src/components'
 
 // import { Container } from './styles';
 const menuList = [
-  { id: 1, color: colors.feedColor, label: 'Alimentação', value: 'feed' },
-  { id: 2, color: colors.sleepColor, label: 'Sono', value: 'sleep' },
-  { id: 3, color: colors.diaperColor, label: 'Fralda', value: 'diaper' },
-  { id: 4, color: colors.noteColor, label: 'Anotação', value: 'note' },
-  { id: 5, color: colors.bathColor, label: 'Banho', value: 'bath' },
-  { id: 6, color: colors.primaryTextColor, label: 'Todos', value: 'all' }
+  'feed',
+  'sleep',
+  'diaper',
+  'note',
+  'bath',
+  'all'
 ]
 export default class SideScreen extends Component {
   state = {
     selected: false
   }
 
+  componentDidMount = async () => {
+    if (this.props.editing) {
+      await this.handleSetEditing()
+    }
+  }
+
+  componentDidUpdate (prevProps) {
+    if (this.props.editing && (prevProps.editing !== this.props.editing)) {
+      this.handleSetEditing()
+    }
+  }
+
+  handleSetEditing = () => {
+    const { editing } = this.props
+    this.setState({ ...this.state, ...editing })
+  }
+
   renderMenuItem = ({ item, index }) => {
     return (
       <TouchableOpacity
-        onPress={this.handleSelectItem(item.value)}
-        style={[styles.optionContainer, { borderColor: item.color }]}
+        onPress={this.handleSelectItem(item)}
+        style={[styles.optionContainer, { borderColor: colors[item] }]}
       >
-        <Text style={styles.textOption}>{item.label}</Text>
+        <Text style={styles.textOption}>{polyglot.t(item)}</Text>
       </TouchableOpacity>
     )
   }
 
   handleSelectItem = value => () => {
-    const { onAnimatedPress } = this.props
-    onAnimatedPress('horizontal', 'half')
+    const { onItemPress } = this.props
+    onItemPress(value)
+  }
+
+  handleChange = name => value => {
+    this.setState({ [name]: value })
+    // if (name === 'option') { this.animationMenu() }
+  }
+
+  renderOptions = (item) => {
+    const { comments, option, note, startTime, startDate, endTime, endDate, ml } = this.state
+    console.log(comments, option, note, typeof startTime, typeof startDate, endTime, endDate, ml, 'renderOptions')
+    return (
+      <KeyboardAwareScrollView
+        contentContainerStyle={styles.containerScroll}
+        keyboardShouldPersistTaps='handled'
+      >
+        <Options
+          item={item}
+          option={option}
+          onHandleChange={this.handleChange}
+          ml={ml}
+          comments={comments}
+          startTime={startTime}
+          startDate={startDate}
+          endTime={endTime}
+          note={note}
+          endDate={endDate}
+        />
+      </KeyboardAwareScrollView>)
   }
 
   render () {
+    const { type } = this.state
+    // const { editing } = this.props
     return (
       <View style={styles.container}>
-        <View style={{ justifyContent: 'center' }}>
-          <FlatList
-            data={menuList}
-            keyExtractor={item => item.id.toString()}
-            renderItem={this.renderMenuItem}
-          />
-        </View>
-      </View>)
+        {type ? this.renderOptions(type)
+          : (
+            <View style={{ justifyContent: 'center' }}>
+              <FlatList
+                data={menuList}
+                keyExtractor={item => item}
+                renderItem={this.renderMenuItem}
+              />
+            </View>
+          )}
+
+      </View>
+    )
   }
 }
 
@@ -52,6 +106,11 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'stretch',
     justifyContent: 'center'
+  },
+  containerScroll: {
+    flexGrow: 1,
+    justifyContent: 'space-between',
+    paddingVertical: 20
   },
   optionContainer: {
     height: 44,

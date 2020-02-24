@@ -5,11 +5,15 @@ import {
   Text,
   StyleSheet
 } from 'react-native'
+import moment from 'moment'
 import LeftClose from 'src/assets/leftClose.png'
 
-import { colors } from 'src/constants'
+import { colors, icons, polyglot } from 'src/constants'
 
 export default function TimeLineItem ({ item, index, width, onItemPress }) {
+  const renderText = (value) => (
+    <Text style={[styles.rightTitle, index % 2 === 0 && styles.alignTextRight]}>{value}</Text>
+  )
   return (
     <View style={[
       styles.pinTimeContainer,
@@ -21,25 +25,31 @@ export default function TimeLineItem ({ item, index, width, onItemPress }) {
       <View style={styles.centerContainer}>
         <View
           style={[styles.arrowDown,
-            { backgroundColor: item.color },
+            { backgroundColor: colors[item.type] },
             index === 0 && styles.arrowDownRound]}
         >
           <Image source={LeftClose} resizeMode='contain' style={styles.downIcon} />
         </View>
         <TouchableOpacity
           activeOpacity={0.8}
-          onPress={() => {}}
+          onPress={() => onItemPress(item)}
         >
-          <View style={[styles.timeIconContainer, { borderColor: item.color }]}>
+          <View style={[styles.timeIconContainer, { borderColor: colors[item.type] }]}>
 
-            <Image source={item.icon} resizeMode='contain' style={styles.pinTimeIcon} />
+            <Image source={icons[item.option]} resizeMode='contain' style={styles.pinTimeIcon} />
           </View>
         </TouchableOpacity>
       </View>
       <View style={[styles.rightContainer, index % 2 === 0 && { alignItems: 'flex-end' }]}>
-        <Text style={styles.timeTitle}>{item.time.start}</Text>
-        <Text style={[styles.rightTitle, index % 2 === 0 && styles.alignTextRight]}>{item.time.duration}</Text>
-        <Text style={[styles.rightTitle, index % 2 === 0 && styles.alignTextRight]}>{item.title}</Text>
+        <Text style={styles.timeTitle}>{moment(item.startTime).format('HH:mm')}</Text>
+        {!!(item.endTime) && renderText(moment(item.endTime).format('HH:mm'))}
+        {!!(item.type) && renderText(polyglot.t(item.type))}
+        {!!(item.option &&
+          item.option !== 'note' &&
+          item.option !== 'bath') && renderText(polyglot.t(item.option))}
+        {!!(item.note) && renderText(`Nota: ${item.note}`)}
+        {!!(item.ml) && renderText(`${item.ml} ml`)}
+        {!!(item.comments) && renderText(item.comments)}
       </View>
     </View>
   )
@@ -74,7 +84,7 @@ const styles = StyleSheet.create({
   arrowDown: {
     flex: 1,
     marginBottom: -0.8,
-    minHeight: 70,
+    minHeight: 40,
     justifyContent: 'center',
     alignItems: 'center',
     height: 'auto',
@@ -104,14 +114,14 @@ const styles = StyleSheet.create({
     padding: 10
   },
   timeTitle: {
-    fontSize: 20,
+    fontSize: 21,
     marginBottom: 3,
     color: colors.primaryTextColor
   },
   rightContainer: {
     flex: 1,
     padding: 10,
-    paddingTop: 20
+    paddingTop: 15
   },
   rightTitle: {
     fontSize: 14,
