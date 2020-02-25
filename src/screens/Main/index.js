@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import { Animated, View, StyleSheet, TouchableOpacity, StatusBar, Image, Dimensions } from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage'
+import Moment from 'moment'
+import v4 from 'uuid/v4'
 import { colors } from 'src/constants'
 import LeftClose from 'src/assets/leftClose.png'
 import ButtonsActions from 'src/components/ButtonsActions'
@@ -24,17 +26,40 @@ export default class Main extends Component {
     }
   }
 
-  componentDidMount = async () => {
+  componentDidMount = () => {
     Dimensions.addEventListener('change', this.handler)
-    const pins = await this.getData()
+    this.handleSetDataToState()
+  }
+
+  handleSetDataToState = async (type = false) => {
+    const pins = await this.getData(type)
     !!pins && this.setState({ pins })
   }
 
-  getData = async () => {
+  getData = async (type = false) => {
     try {
       const value = await AsyncStorage.getItem('@storage_Pins')
       if (value !== null) {
-        return JSON.parse(value).reverse()
+        const groupsOfDay = {}
+        JSON.parse(value).map(item => {
+          const checkType = !type || type === 'all' ? true : type === item.type
+          const startDate = item.startDate
+          const dayObj = { id: v4(), startTime: startDate, type: 'day' }
+          if (groupsOfDay[startDate] && checkType) {
+            groupsOfDay[startDate].push(item)
+          } else if (checkType) {
+            groupsOfDay[startDate] = [dayObj, item]
+          }
+        })
+        const sortedGroup = Object.keys(groupsOfDay).sort((a, b) => {
+          return new Moment(a).format('YYYYMMDD') - new Moment(b).format('YYYYMMDD')
+        })
+        let groupArray = []
+        sortedGroup.map(key => {
+          groupArray = [...groupArray, ...groupsOfDay[key]]
+        })
+
+        return groupArray.reverse()
       }
     } catch (e) {
       // error reading value
@@ -147,7 +172,7 @@ export default class Main extends Component {
   }
 
   handleMenuItemPress = async value => {
-    await this.handleChangePins(value)
+    this.handleSetDataToState(value)
     this.handleAnimationPress('horizontal', 'close')
   }
 
@@ -167,13 +192,13 @@ export default class Main extends Component {
           </Animated.View>
 
           <Animated.View style={[styles.sideContainer, { width: this.state.width }, this.handleTransform('side')]}>
-            <SideScreen editing={editing} onItemPress={this.handleMenuItemPress} />
+            <SideScreen editing={editing} onChange={this.handleChange} onAnimatedPress={this.handleAnimationPress} onItemPress={this.handleMenuItemPress} />
           </Animated.View>
 
         </Animated.View>
         <Animated.View style={[styles.pinPageContainer, { height }, this.handleTransform('below')]}>
 
-          <CreatePin onAnimatedPress={this.handleAnimationPress} onCreatePin={this.handleChange} />
+          <CreatePin onAnimatedPress={this.handleAnimationPress} onCreatePin={this.handleSetDataToState} />
 
         </Animated.View>
       </View>

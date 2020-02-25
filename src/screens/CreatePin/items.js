@@ -49,7 +49,7 @@ const TimeInputs = ({ onHandleChange, startTime, startDate, endTime, endDate }) 
       onDateChange={onDateChange}
     />
   )
-  const dateFormat = 'DD/MM/YY'
+  const dateFormat = 'DD/MM/YYYY'
   return (
     <View
       style={styles.commentContainer}

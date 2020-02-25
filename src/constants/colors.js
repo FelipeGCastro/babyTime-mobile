@@ -15,7 +15,8 @@ const colors = {
   sleep: '#A846A0',
   bath: '#70D6FF',
   note: '#23CE6B',
-  all: '#fff'
+  all: '#fff',
+  day: '#fff'
 }
 
 export default colors

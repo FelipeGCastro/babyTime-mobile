@@ -16,7 +16,8 @@ const menuList = [
 ]
 export default class SideScreen extends Component {
   state = {
-    selected: false
+    selected: false,
+    type: false
   }
 
   componentDidMount = async () => {
@@ -57,6 +58,15 @@ export default class SideScreen extends Component {
     // if (name === 'option') { this.animationMenu() }
   }
 
+  handleCloseBottom = () => {
+    const { onAnimatedPress, onChange } = this.props
+    onAnimatedPress('horizontal', 'close')
+    onChange('editing')(false)
+    setTimeout(() => {
+      this.setState({ type: false })
+    }, 800)
+  }
+
   renderOptions = (item) => {
     const { comments, option, note, startTime, startDate, endTime, endDate, ml } = this.state
     console.log(comments, option, note, typeof startTime, typeof startDate, endTime, endDate, ml, 'renderOptions')
@@ -77,12 +87,17 @@ export default class SideScreen extends Component {
           note={note}
           endDate={endDate}
         />
+        <TouchableOpacity
+          onPress={this.handleCloseBottom}
+          style={styles.close}
+        >
+          <Text style={styles.buttonText}>{polyglot.t('save')}</Text>
+        </TouchableOpacity>
       </KeyboardAwareScrollView>)
   }
 
   render () {
     const { type } = this.state
-    // const { editing } = this.props
     return (
       <View style={styles.container}>
         {type ? this.renderOptions(type)
@@ -118,11 +133,25 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     justifyContent: 'center',
     alignItems: 'flex-start',
-    marginBottom: 20,
+    marginBottom: 15,
     marginHorizontal: 20,
     paddingHorizontal: 20
   },
   textOption: {
+    fontSize: 18,
+    color: colors.primaryTextColor
+  },
+  close: {
+    width: 160,
+    height: 50,
+    backgroundColor: colors.activeColor,
+    marginBottom: 20,
+    borderRadius: 6,
+    justifyContent: 'center',
+    alignItems: 'center',
+    alignSelf: 'center'
+  },
+  buttonText: {
     fontSize: 18,
     color: colors.primaryTextColor
   }

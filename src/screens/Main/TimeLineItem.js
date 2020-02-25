@@ -5,14 +5,13 @@ import {
   Text,
   StyleSheet
 } from 'react-native'
-import moment from 'moment'
 import LeftClose from 'src/assets/leftClose.png'
 
 import { colors, icons, polyglot } from 'src/constants'
 
 export default function TimeLineItem ({ item, index, width, onItemPress }) {
-  const renderText = (value) => (
-    <Text style={[styles.rightTitle, index % 2 === 0 && styles.alignTextRight]}>{value}</Text>
+  const renderText = (value, style) => (
+    <Text style={[styles.rightTitle, index % 2 === 0 && styles.alignTextRight, style]}>{value}</Text>
   )
   return (
     <View style={[
@@ -34,16 +33,25 @@ export default function TimeLineItem ({ item, index, width, onItemPress }) {
           activeOpacity={0.8}
           onPress={() => onItemPress(item)}
         >
-          <View style={[styles.timeIconContainer, { borderColor: colors[item.type] }]}>
+          <View style={[styles.timeIconContainer,
+            { borderColor: colors[item.type] },
+            item.type === 'day' && styles.pointStyle
+          ]}
+          >
+            {item.type !== 'day' && <Image source={icons[item.option]} resizeMode='contain' style={styles.pinTimeIcon} />}
 
-            <Image source={icons[item.option]} resizeMode='contain' style={styles.pinTimeIcon} />
           </View>
         </TouchableOpacity>
       </View>
-      <View style={[styles.rightContainer, index % 2 === 0 && { alignItems: 'flex-end' }]}>
-        <Text style={styles.timeTitle}>{moment(item.startTime).format('HH:mm')}</Text>
-        {!!(item.endTime) && renderText(moment(item.endTime).format('HH:mm'))}
-        {!!(item.type) && renderText(polyglot.t(item.type))}
+      <View style={[styles.rightContainer,
+        index % 2 === 0 && { alignItems: 'flex-end' },
+        item.type === 'day' && { paddingTop: 0 }
+      ]}
+      >
+        <Text style={[styles.timeTitle, item.type === 'day' && { fontSize: 18 }]}>{item.startTime}</Text>
+        {!!(item.endTime) && renderText(item.endTime)}
+        {!!(item.type && item.type !== 'day') &&
+          renderText(polyglot.t(item.type), { color: colors.primaryTextColor, fontSize: 16 })}
         {!!(item.option &&
           item.option !== 'note' &&
           item.option !== 'bath') && renderText(polyglot.t(item.option))}
@@ -78,13 +86,30 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center'
   },
+  pointStyle: {
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 3
+    },
+    shadowOpacity: 0.5,
+    shadowRadius: 3.84,
+    elevation: 5,
+    width: 30,
+    padding: 5,
+    height: 30,
+    borderRadius: 15,
+    borderWidth: 5,
+    // backgroundColor: colors.primaryTextColor,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
   pinTimeIcon: {
     width: 40
   },
   arrowDown: {
     flex: 1,
     marginBottom: -0.8,
-    minHeight: 40,
     justifyContent: 'center',
     alignItems: 'center',
     height: 'auto',

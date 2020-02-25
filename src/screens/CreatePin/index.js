@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { View, Image, StyleSheet, TouchableOpacity, FlatList, Text, Animated } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import AsyncStorage from '@react-native-community/async-storage'
+import Moment from 'moment'
 import v4 from 'uuid/v4'
 import { colors, polyglot, icons } from 'src/constants'
 import { Options } from 'src/components'
@@ -19,8 +20,8 @@ export default class CreatePin extends Component {
     animation: new Animated.Value(0),
     comments: '',
     option: false,
-    startTime: new Date(),
-    startDate: new Date(),
+    startTime: new Moment(new Date()).format('HH:mm'),
+    startDate: new Moment(new Date()).format('DD/MM/YYYY'),
     endTime: null,
     endDate: null,
     note: ''
@@ -55,10 +56,21 @@ export default class CreatePin extends Component {
     }).start()
   }
 
-  handleClosoBottom = async () => {
+  handleCloseBottom = async () => {
     const { checked, comments, option, note, startTime, startDate, endTime, endDate, ml } = this.state
     const { onAnimatedPress, onCreatePin } = this.props
-    const pinsObj = { id: v4(), type: checked, comments, option, startTime, startDate, note, endDate, endTime, ml }
+    const pinsObj = {
+      id: v4(),
+      type: checked,
+      comments,
+      option,
+      startTime,
+      startDate,
+      note,
+      endDate: endDate || null,
+      endTime: endTime || null,
+      ml
+    }
     try {
       const value = await AsyncStorage.getItem('@storage_Pins')
       let newPin = JSON.parse(value)
@@ -67,8 +79,7 @@ export default class CreatePin extends Component {
       }
       newPin.push(pinsObj)
       await AsyncStorage.setItem('@storage_Pins', JSON.stringify(newPin))
-      console.log(newPin)
-      onCreatePin('pins')(newPin.reverse())
+      onCreatePin()
       onAnimatedPress('vertical', 'close')
       setTimeout(() => {
         this.setState({ checked: false })
@@ -76,6 +87,14 @@ export default class CreatePin extends Component {
     } catch (e) {
       console.log(e)
     }
+  }
+
+  handleJustClose = () => {
+    const { onAnimatedPress } = this.props
+    onAnimatedPress('vertical', 'close')
+    setTimeout(() => {
+      this.setState({ checked: false })
+    }, 800)
   }
 
   renderMenuItem = ({ item, index }) => {
@@ -142,7 +161,7 @@ export default class CreatePin extends Component {
       default: !!(option) && !!(startTime) && !!(startDate)
     }
     const verified = verifyObj[checked] === undefined ? verifyObj.default : verifyObj[checked]
-
+    console.tron.log(verified, option, checked)
     return verified
   }
 
@@ -171,12 +190,18 @@ export default class CreatePin extends Component {
         {verification ? (
           <Animated.View style={[this.objAnimation()]}>
             <TouchableOpacity
-              onPress={this.handleClosoBottom}
+              onPress={this.handleCloseBottom}
               style={styles.close}
             ><Text style={styles.buttonText}>{polyglot.t('conclude')}</Text>
             </TouchableOpacity>
           </Animated.View>
         ) : null}
+        <TouchableOpacity
+          onPress={this.handleJustClose}
+          style={styles.cancel}
+        >
+          {/* <Text style={styles.buttonText}>{polyglot.t('cancel')}</Text> */}
+        </TouchableOpacity>
       </KeyboardAwareScrollView>
     )
   }
@@ -215,6 +240,15 @@ const styles = StyleSheet.create({
     position: 'absolute',
     right: 20,
     top: 20
+  },
+  cancel: {
+    width: 50,
+    height: 50,
+    backgroundColor: colors.feedColor,
+    borderRadius: 25,
+    position: 'absolute',
+    left: 20,
+    bottom: 30
   },
   close: {
     width: 160,

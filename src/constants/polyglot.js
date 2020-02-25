@@ -20,7 +20,8 @@ const ptBR = {
   poop: 'Cocô',
   pee: 'Xixi',
   pooAndPee: 'Cocô/Xixi',
-  all: 'Todos'
+  all: 'Todos',
+  save: 'Guardar'
 }
 
 const polyglot = new Polyglot()
