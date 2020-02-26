@@ -1,5 +1,6 @@
 import breast from 'src/assets/breast.png'
 import sleep from 'src/assets/sleep.png'
+import pause from 'src/assets/pause.png'
 import diaper from 'src/assets/diaper.png'
 import note from 'src/assets/note.png'
 import bath from 'src/assets/duck.png'
@@ -30,7 +31,8 @@ const icons = {
   pooAndPee,
   baby,
   mom: woman,
-  woman
+  woman,
+  pause
 }
 
 export default icons

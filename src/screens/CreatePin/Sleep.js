@@ -1,7 +1,7 @@
 import React from 'react'
 import { View, StyleSheet } from 'react-native'
 import { colors } from 'src/constants'
-import { Comments, Option, TimeInputs } from './items'
+import { Comments, Option, TimeInputs, OneOption } from './items'
 
 const options = ['baby', 'mom']
 
@@ -24,7 +24,7 @@ const Sleep = ({
     >
       {option ? (
         <>
-          <Option onHandleChange={onHandleChange} itemColor={colors.sleepColor} item={option} option={option} />
+          <OneOption onHandleChange={onHandleChange} itemColor={colors.sleepColor} item={option} option={option} />
           <TimeInputs
             onHandleChange={onHandleChange}
             startTime={startTime}

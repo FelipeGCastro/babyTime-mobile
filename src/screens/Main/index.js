@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
-import { Animated, View, StyleSheet, TouchableOpacity, StatusBar, Image, Dimensions } from 'react-native'
+import { Animated, View, StyleSheet, TouchableOpacity, StatusBar, Image, Dimensions, Platform } from 'react-native'
 import AsyncStorage from '@react-native-community/async-storage'
+import BackgroundTimer from 'react-native-background-timer'
 import Moment from 'moment'
 import v4 from 'uuid/v4'
 import { colors } from 'src/constants'
@@ -22,13 +23,31 @@ export default class Main extends Component {
       horizontalActive: false,
       pinsSelect: 'all',
       editing: false,
-      pins: []
+      pins: [],
+      second: 0
     }
   }
 
   componentDidMount = () => {
     Dimensions.addEventListener('change', this.handler)
     this.handleSetDataToState()
+  }
+
+  _interval: any
+  handleStartTimer = () => {
+    this.handleAnimationPress('vertical', 'half')
+    if (Platform.OS === 'ios') {
+      BackgroundTimer.start()
+    }
+    this._interval = BackgroundTimer.setInterval(() => {
+      this.setState({
+        second: this.state.second + 1
+      })
+    }, 1000)
+  }
+
+  handleStopTimer = () => {
+    BackgroundTimer.clearInterval(this._interval)
   }
 
   handleSetDataToState = async (type = false) => {
@@ -177,7 +196,7 @@ export default class Main extends Component {
   }
 
   render () {
-    const { height, verticalActive, pins, editing, width, pinsSelect } = this.state
+    const { height, second, verticalActive, pins, editing, width, pinsSelect } = this.state
     return (
       <View style={styles.container}>
         <StatusBar backgroundColor={colors.backgroundColor} barStyle='light-content' />
@@ -187,6 +206,7 @@ export default class Main extends Component {
             {this.renderLeftArrow()}
             <ButtonsActions
               active={verticalActive}
+              onTimerPress={this.handleStartTimer}
               onPinPress={() => this.handleAnimationPress('vertical', 'half')}
             />
           </Animated.View>
@@ -198,7 +218,7 @@ export default class Main extends Component {
         </Animated.View>
         <Animated.View style={[styles.pinPageContainer, { height }, this.handleTransform('below')]}>
 
-          <CreatePin onAnimatedPress={this.handleAnimationPress} onCreatePin={this.handleSetDataToState} />
+          <CreatePin onStopTimer={this.handleStopTimer} second={second} onAnimatedPress={this.handleAnimationPress} onCreatePin={this.handleSetDataToState} />
 
         </Animated.View>
       </View>
@@ -237,6 +257,7 @@ const styles = StyleSheet.create({
     paddingRight: 5,
     paddingVertical: 5,
     paddingLeft: 10,
+    backgroundColor: colors.backgroundColor,
     borderColor: colors.primaryTextColor,
     position: 'absolute',
     justifyContent: 'center',

@@ -17,7 +17,17 @@ const Option = ({ onHandleChange, item, option, itemColor }) => {
     </TouchableOpacity>
   )
 }
-
+const OneOption = ({ onHandleChange, item, option, itemColor }) => {
+  return (
+    <TouchableOpacity
+      onPress={() => onHandleChange('option')(option ? '' : item)}
+      activeOpacity={0.7}
+      style={[styles.buttonContainer, option === item && { borderBottomColor: itemColor, borderBottomWidth: 3 }]}
+    >
+      <Text style={styles.titleOption}>{polyglot.t(item)}</Text>
+    </TouchableOpacity>
+  )
+}
 const Comments = ({ comments, onHandleChange }) => {
   return (
     <View
@@ -43,7 +53,7 @@ const TimeInputs = ({ onHandleChange, startTime, startDate, endTime, endDate }) 
       mode={mode}
       placeholder={placeholder}
       dateInputStyle={styles.dateInputStyle}
-      styleContainer={{ width: 120 }}
+      styleContainer={{ width: 130 }}
       format={format}
       minDate={minDate}
       onDateChange={onDateChange}
@@ -110,7 +120,7 @@ const styles = StyleSheet.create({
     marginBottom: 10
   },
   titleOption: {
-    fontSize: 18,
+    fontSize: 16,
     color: colors.primaryTextColor
   },
   dateInputStyle: {
@@ -127,7 +137,7 @@ const styles = StyleSheet.create({
     marginBottom: 30
   },
   titleTime: {
-    fontSize: 20,
+    fontSize: 18,
     color: colors.primaryTextColor,
     alignSelf: 'center'
   }
@@ -136,5 +146,6 @@ const styles = StyleSheet.create({
 export {
   Comments,
   Option,
+  OneOption,
   TimeInputs
 }

@@ -13,6 +13,7 @@ export default function TimeLineItem ({ item, index, width, onItemPress }) {
   const renderText = (value, style) => (
     <Text style={[styles.rightTitle, index % 2 === 0 && styles.alignTextRight, style]}>{value}</Text>
   )
+  const isDay = item.type === 'day'
   return (
     <View style={[
       styles.pinTimeContainer,
@@ -31,26 +32,26 @@ export default function TimeLineItem ({ item, index, width, onItemPress }) {
         </View>
         <TouchableOpacity
           activeOpacity={0.8}
-          onPress={() => onItemPress(item)}
+          onPress={() => !isDay && onItemPress(item)}
         >
           <View style={[styles.timeIconContainer,
             { borderColor: colors[item.type] },
-            item.type === 'day' && styles.pointStyle
+            isDay && styles.pointStyle
           ]}
           >
-            {item.type !== 'day' && <Image source={icons[item.option]} resizeMode='contain' style={styles.pinTimeIcon} />}
+            {!isDay && <Image source={icons[item.option]} resizeMode='contain' style={styles.pinTimeIcon} />}
 
           </View>
         </TouchableOpacity>
       </View>
       <View style={[styles.rightContainer,
         index % 2 === 0 && { alignItems: 'flex-end' },
-        item.type === 'day' && { paddingTop: 0 }
+        isDay && { paddingTop: 0 }
       ]}
       >
-        <Text style={[styles.timeTitle, item.type === 'day' && { fontSize: 18 }]}>{item.startTime}</Text>
+        <Text style={[styles.timeTitle, isDay && { fontSize: 18 }]}>{item.startTime}</Text>
         {!!(item.endTime) && renderText(item.endTime)}
-        {!!(item.type && item.type !== 'day') &&
+        {!!(item.type && !isDay) &&
           renderText(polyglot.t(item.type), { color: colors.primaryTextColor, fontSize: 16 })}
         {!!(item.option &&
           item.option !== 'note' &&

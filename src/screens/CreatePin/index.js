@@ -6,6 +6,7 @@ import Moment from 'moment'
 import v4 from 'uuid/v4'
 import { colors, polyglot, icons } from 'src/constants'
 import { Options } from 'src/components'
+import pause from 'src/assets/pause.png'
 
 const menuList = [
   'feed',
@@ -20,8 +21,8 @@ export default class CreatePin extends Component {
     animation: new Animated.Value(0),
     comments: '',
     option: false,
-    startTime: new Moment(new Date()).format('HH:mm'),
-    startDate: new Moment(new Date()).format('DD/MM/YYYY'),
+    startTime: null,
+    startDate: null,
     endTime: null,
     endDate: null,
     note: ''
@@ -30,6 +31,8 @@ export default class CreatePin extends Component {
   handleMenuItemPress = (item, position) => () => {
     const { onAnimatedPress } = this.props
     const { checked } = this.state
+    const startTime = new Moment(new Date()).format('HH:mm')
+    const startDate = new Moment(new Date()).format('DD/MM/YYYY')
     const optionObj = {
       note: 'note',
       bath: 'bath'
@@ -38,11 +41,11 @@ export default class CreatePin extends Component {
       onAnimatedPress('vertical', position)
       setTimeout(() => {
         this.animationMenu(800)
-        this.setState({ checked: item, option: optionObj[item] || false })
+        this.setState({ checked: item, startTime, startDate, option: optionObj[item] || false })
       }, 400)
     } else {
       this.animationMenu()
-      this.setState({ checked: item, option: optionObj[item] || false })
+      this.setState({ checked: item, startTime, startDate, option: optionObj[item] || false })
     }
   }
 
@@ -82,18 +85,31 @@ export default class CreatePin extends Component {
       onCreatePin()
       onAnimatedPress('vertical', 'close')
       setTimeout(() => {
-        this.setState({ checked: false })
+        this.resetState()
       }, 800)
     } catch (e) {
       console.log(e)
     }
   }
 
+  resetState = () => {
+    this.setState({
+      checked: false,
+      comments: '',
+      option: false,
+      startTime: null,
+      startDate: null,
+      endTime: null,
+      endDate: null,
+      note: ''
+    })
+  }
+
   handleJustClose = () => {
     const { onAnimatedPress } = this.props
     onAnimatedPress('vertical', 'close')
     setTimeout(() => {
-      this.setState({ checked: false })
+      this.resetState()
     }, 800)
   }
 
@@ -167,12 +183,18 @@ export default class CreatePin extends Component {
 
   render () {
     const { checked } = this.state
+    const { second, onStopTimer } = this.props
     const verification = this.verification(checked)
     return (
       <KeyboardAwareScrollView
         contentContainerStyle={[styles.container, { flexGrow: 1 }]}
         keyboardShouldPersistTaps='handled'
       >
+        {!!second && (
+          <Text
+            style={styles.timerText}
+          >{Moment('1900-01-01 00:00:00').add(second, 'seconds').format('HH:mm:ss')}
+          </Text>)}
         <View style={{ justifyContent: 'center' }}>
           <FlatList
             data={menuList}
@@ -199,9 +221,14 @@ export default class CreatePin extends Component {
         <TouchableOpacity
           onPress={this.handleJustClose}
           style={styles.cancel}
-        >
-          {/* <Text style={styles.buttonText}>{polyglot.t('cancel')}</Text> */}
+        ><Text style={styles.buttonText}>X</Text>
         </TouchableOpacity>
+        {!!second &&
+          <TouchableOpacity
+            onPress={onStopTimer}
+            style={styles.stop}
+          ><Image source={pause} style={{ width: 35, height: 35 }} resizeMode='contain' />
+          </TouchableOpacity>}
       </KeyboardAwareScrollView>
     )
   }
@@ -218,6 +245,12 @@ const styles = StyleSheet.create({
   },
   menuIcon: {
     width: 35
+  },
+  timerText: {
+    fontSize: 40,
+    color: colors.primaryTextColor,
+    textAlign: 'center',
+    marginBottom: 20
   },
   buttonContainer: {
     justifyContent: 'center',
@@ -244,8 +277,12 @@ const styles = StyleSheet.create({
   cancel: {
     width: 50,
     height: 50,
-    backgroundColor: colors.feedColor,
+    borderWidth: 2,
+    borderColor: colors.feedColor,
     borderRadius: 25,
+    justifyContent: 'center',
+    backgroundColor: colors.backgroundColor,
+    alignItems: 'center',
     position: 'absolute',
     left: 20,
     bottom: 30
@@ -263,6 +300,18 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 18,
     color: colors.primaryTextColor
+  },
+  stop: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderWidth: 3,
+    borderColor: colors.primaryTextColor,
+    justifyContent: 'center',
+    alignSelf: 'center',
+    alignItems: 'center',
+    backgroundColor: colors.backgroundColor,
+    margin: 10
   }
 
   // TERMINA AQUI

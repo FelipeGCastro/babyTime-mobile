@@ -44,10 +44,10 @@ export default class MyDatePicker extends Component {
 
 const styles = StyleSheet.create({
   dateText: {
-    fontSize: 18,
+    fontSize: 16,
     color: colors.primaryTextColor
   },
   placeholderText: {
-    fontSize: 18
+    fontSize: 16
   }
 })

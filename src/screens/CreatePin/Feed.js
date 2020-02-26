@@ -1,7 +1,7 @@
 import React from 'react'
 import { View, StyleSheet, FlatList, TouchableOpacity, Text } from 'react-native'
 import { colors } from 'src/constants'
-import { Comments, Option, TimeInputs } from './items'
+import { Comments, Option, TimeInputs, OneOption } from './items'
 const options = [
   'left',
   'right',
@@ -51,12 +51,13 @@ const Feed = ({
       {option ? (
         <>
           <View style={{ marginBottom: 10 }}>
-            <Option
+            <OneOption
               onHandleChange={onHandleChange}
               itemColor={colors.feedColor}
               item={option} option={option}
             />
           </View>
+
           <TimeInputs
             onHandleChange={onHandleChange}
             startTime={startTime}
@@ -64,14 +65,17 @@ const Feed = ({
             endTime={endTime}
             endDate={endDate}
           />
-          <View style={{ marginBottom: 10 }}>
-            <FlatList
-              data={mlOptions}
-              keyExtractor={item => item.toString()}
-              horizontal
-              renderItem={renderMlItem}
-            />
-          </View>
+          {(option !== 'left' && option !== 'right') && (
+            <View style={{ marginBottom: 10 }}>
+              <FlatList
+                data={mlOptions}
+                keyExtractor={item => item.toString()}
+                horizontal
+                renderItem={renderMlItem}
+              />
+            </View>
+          )}
+
           <Comments comments={comments} onHandleChange={onHandleChange} />
         </>
       )
@@ -114,12 +118,12 @@ const styles = StyleSheet.create({
   },
   numberText: {
     color: colors.primaryTextColor,
-    fontSize: 18,
+    fontSize: 16,
     lineHeight: 18
   },
   mlText: {
     color: colors.primaryTextColor,
-    fontSize: 20,
+    fontSize: 18,
     lineHeight: 18
   }
 })

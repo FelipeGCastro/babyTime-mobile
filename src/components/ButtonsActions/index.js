@@ -1,15 +1,15 @@
 import React from 'react'
 import { View, StyleSheet, TouchableOpacity, Image } from 'react-native'
-import { colors } from '../../constants'
-import Pin from '../../assets/pin.png'
-import Timer from '../../assets/timer.png'
-import Close from '../../assets/close.png'
+import { colors } from 'src/constants'
+import Pin from 'src/assets/pin.png'
+import Timer from 'src/assets/timer.png'
+import Close from 'src/assets/close.png'
 // import { Container } from './styles';
 
-export default function ButtonsActions ({ onPinPress, active }) {
+export default function ButtonsActions ({ onPinPress, onTimerPress, active }) {
   return (
     <View style={styles.buttonsContainer}>
-      <TouchableOpacity activeOpacity={0.7} style={styles.buttonContainer}>
+      <TouchableOpacity onPress={onTimerPress} activeOpacity={0.7} style={styles.buttonContainer}>
         <Image source={Timer} resizeMode='contain' style={styles.buttonsIcon} />
       </TouchableOpacity>
       <TouchableOpacity
