@@ -5,8 +5,7 @@ import AsyncStorage from '@react-native-community/async-storage'
 import Moment from 'moment'
 import v4 from 'uuid/v4'
 import { colors, polyglot, icons } from 'src/constants'
-import { Options } from 'src/components'
-import pause from 'src/assets/pause.png'
+import { Options, TimerButton } from 'src/components'
 
 const menuList = [
   'feed',
@@ -25,6 +24,7 @@ export default class CreatePin extends Component {
     startDate: null,
     endTime: null,
     endDate: null,
+    duration: null,
     note: ''
   }
 
@@ -60,13 +60,25 @@ export default class CreatePin extends Component {
   }
 
   handleCloseBottom = async () => {
-    const { checked, comments, option, note, startTime, startDate, endTime, endDate, ml } = this.state
+    const { checked, comments, option, note, startTime, startDate, endTime, endDate, ml, duration } = this.state
     const { onAnimatedPress, onCreatePin } = this.props
+    var inSec = false
+    if (endTime && endDate) {
+      const now = startDate + ' ' + startTime
+      const then = endDate + ' ' + endTime
+      var ms = Moment(now, 'DD/MM/YYYY HH:mm').diff(Moment(then, 'DD/MM/YYYY HH:mm'))
+      var d = Moment.duration(ms)
+      var s = Math.floor(d.asHours()) + Moment.utc(ms).format('HH:mm:ss')
+      inSec = Moment(s, 'HH:mm:ss').diff(Moment().startOf('day'), 'seconds')
+    }
+
+    const finalDuration = duration || inSec
     const pinsObj = {
       id: v4(),
       type: checked,
       comments,
       option,
+      duration: finalDuration,
       startTime,
       startDate,
       note,
@@ -148,11 +160,12 @@ export default class CreatePin extends Component {
     }]
   })
 
-  renderOptions = (item) => {
+  renderOptions = (item, second) => {
     const { comments, option, note, startTime, startDate, endTime, endDate, ml } = this.state
     return (
       <Options
         item={item}
+        timer={!!second}
         option={option}
         onHandleChange={this.handleChange}
         ml={ml}
@@ -177,25 +190,68 @@ export default class CreatePin extends Component {
       default: !!(option) && !!(startTime) && !!(startDate)
     }
     const verified = verifyObj[checked] === undefined ? verifyObj.default : verifyObj[checked]
-    console.tron.log(verified, option, checked)
     return verified
+  }
+
+  renderClose = () => (
+
+    <TouchableOpacity
+      onPress={this.handleJustClose}
+      style={styles.cancel}
+    >
+      <Text style={styles.buttonText}>X</Text>
+    </TouchableOpacity>
+  )
+
+  renderPauseAndStart = () => {
+    const { onTimerPress, timer } = this.props
+    return (
+      <TimerButton onTimerPress={onTimerPress} timer={timer} />
+    )
+  }
+
+  handleTimerFinish = () => {
+    const { onTimerPress, second } = this.props
+    onTimerPress()
+    this.setState({ duration: second }, this.handleCloseBottom)
+  }
+
+  renderConclude = (checked, second) => {
+    const verification = this.verification(checked)
+    return (
+      <Animated.View style={[{
+        height: 50,
+        marginBottom: 10
+      }, this.objAnimation()]}
+      >
+        {verification && (
+          <TouchableOpacity
+            onPress={second ? this.handleTimerFinish : this.handleCloseBottom}
+            style={styles.conclude}
+          ><Text style={styles.buttonText}>{second ? polyglot.t('finish') : polyglot.t('conclude')}</Text>
+          </TouchableOpacity>
+        )}
+      </Animated.View>
+    )
   }
 
   render () {
     const { checked } = this.state
-    const { second, onStopTimer } = this.props
-    const verification = this.verification(checked)
+    const { second } = this.props
+    const secondTimer = Moment('1900-01-01 00:00:00')
+      .add(second, 'seconds').format(second > 3599 ? 'HH:mm:ss' : 'mm:ss')
     return (
       <KeyboardAwareScrollView
-        contentContainerStyle={[styles.container, { flexGrow: 1 }]}
+        contentContainerStyle={[styles.container, !!second && { justifyContent: 'flex-start' }]}
+        extraScrollHeight={40}
         keyboardShouldPersistTaps='handled'
       >
         {!!second && (
           <Text
             style={styles.timerText}
-          >{Moment('1900-01-01 00:00:00').add(second, 'seconds').format('HH:mm:ss')}
+          >{secondTimer}
           </Text>)}
-        <View style={{ justifyContent: 'center' }}>
+        <View style={styles.principalMenu}>
           <FlatList
             data={menuList}
             keyExtractor={item => item}
@@ -205,30 +261,13 @@ export default class CreatePin extends Component {
         </View>
         <View />
         {checked && (
-          <Animated.View style={[{ flex: 1 }, this.objAnimation()]}>
-            {this.renderOptions(checked)}
+          <Animated.View style={[{ flexGrow: 1 }, this.objAnimation()]}>
+            {this.renderOptions(checked, second)}
           </Animated.View>
         )}
-        {verification ? (
-          <Animated.View style={[this.objAnimation()]}>
-            <TouchableOpacity
-              onPress={this.handleCloseBottom}
-              style={styles.close}
-            ><Text style={styles.buttonText}>{polyglot.t('conclude')}</Text>
-            </TouchableOpacity>
-          </Animated.View>
-        ) : null}
-        <TouchableOpacity
-          onPress={this.handleJustClose}
-          style={styles.cancel}
-        ><Text style={styles.buttonText}>X</Text>
-        </TouchableOpacity>
-        {!!second &&
-          <TouchableOpacity
-            onPress={onStopTimer}
-            style={styles.stop}
-          ><Image source={pause} style={{ width: 35, height: 35 }} resizeMode='contain' />
-          </TouchableOpacity>}
+        {this.renderConclude(checked, second)}
+        {this.renderClose()}
+        {!!second && this.renderPauseAndStart()}
       </KeyboardAwareScrollView>
     )
   }
@@ -237,17 +276,19 @@ export default class CreatePin extends Component {
 const styles = StyleSheet.create({
   // PIN PAGE CONTAINER
   container: {
+    flexGrow: 1,
     justifyContent: 'space-between',
     paddingVertical: 20
   },
-  buttonsIcon: {
-    width: 50
+  principalMenu: {
+    justifyContent: 'center',
+    marginVertical: 15
   },
   menuIcon: {
     width: 35
   },
   timerText: {
-    fontSize: 40,
+    fontSize: 45,
     color: colors.primaryTextColor,
     textAlign: 'center',
     marginBottom: 20
@@ -287,11 +328,10 @@ const styles = StyleSheet.create({
     left: 20,
     bottom: 30
   },
-  close: {
+  conclude: {
     width: 160,
     height: 50,
     backgroundColor: colors.activeColor,
-    marginBottom: 20,
     borderRadius: 6,
     justifyContent: 'center',
     alignItems: 'center',

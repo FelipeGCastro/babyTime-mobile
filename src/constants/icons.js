@@ -1,11 +1,15 @@
 import breast from 'src/assets/breast.png'
 import sleep from 'src/assets/sleep.png'
 import pause from 'src/assets/pause.png'
+import play from 'src/assets/play.png'
 import diaper from 'src/assets/diaper.png'
 import note from 'src/assets/note.png'
 import bath from 'src/assets/duck.png'
 import poop from 'src/assets/poop.png'
 import pee from 'src/assets/pee.png'
+import timer from 'src/assets/timer.png'
+import close from 'src/assets/close.png'
+import pin from 'src/assets/pin.png'
 import baby from 'src/assets/baby.png'
 import woman from 'src/assets/woman.png'
 import bottle from 'src/assets/bottle.png'
@@ -28,6 +32,10 @@ const icons = {
   bath,
   poop,
   pee,
+  play,
+  pin,
+  timer,
+  close,
   pooAndPee,
   baby,
   mom: woman,

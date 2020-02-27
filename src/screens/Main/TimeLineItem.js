@@ -5,6 +5,7 @@ import {
   Text,
   StyleSheet
 } from 'react-native'
+import moment from 'moment'
 import LeftClose from 'src/assets/leftClose.png'
 
 import { colors, icons, polyglot } from 'src/constants'
@@ -14,6 +15,8 @@ export default function TimeLineItem ({ item, index, width, onItemPress }) {
     <Text style={[styles.rightTitle, index % 2 === 0 && styles.alignTextRight, style]}>{value}</Text>
   )
   const isDay = item.type === 'day'
+  const duration = moment('1900-01-01 00:00:00')
+    .add(item.duration, 'seconds').format(item.duration < 60 ? 'ss [Segundos]' : (item.duration > 3599) ? 'h [Hrs], m [Min]' : 'm [Minutes]')
   return (
     <View style={[
       styles.pinTimeContainer,
@@ -50,6 +53,7 @@ export default function TimeLineItem ({ item, index, width, onItemPress }) {
       ]}
       >
         <Text style={[styles.timeTitle, isDay && { fontSize: 18 }]}>{item.startTime}</Text>
+        {!!(item.duration) && renderText(duration)}
         {!!(item.endTime) && renderText(item.endTime)}
         {!!(item.type && !isDay) &&
           renderText(polyglot.t(item.type), { color: colors.primaryTextColor, fontSize: 16 })}

@@ -15,6 +15,7 @@ export default function Options ({
   startTime,
   onHandleChange,
   startDate,
+  timer,
   endTime,
   endDate,
   ml
@@ -23,6 +24,7 @@ export default function Options ({
     feed: (
       <Feed
         option={option}
+        timer={timer}
         onHandleChange={onHandleChange}
         ml={ml}
         comments={comments}
@@ -34,6 +36,7 @@ export default function Options ({
     sleep: (
       <SleepScreen
         option={option}
+        timer={timer}
         comments={comments}
         startTime={startTime}
         startDate={startDate}
@@ -42,6 +45,7 @@ export default function Options ({
     diaper: (
       <DiaperScreen
         option={option}
+        timer={timer}
         onHandleChange={onHandleChange}
         comments={comments}
         startTime={startTime}
@@ -52,6 +56,7 @@ export default function Options ({
     note: (
       <NoteScreen
         onHandleChange={onHandleChange}
+        timer={timer}
         note={note}
         startTime={startTime}
         startDate={startDate}
@@ -61,6 +66,7 @@ export default function Options ({
     bath: (
       <BathScreen
         onHandleChange={onHandleChange}
+        timer={timer}
         comments={comments}
         startTime={startTime}
         startDate={startDate}

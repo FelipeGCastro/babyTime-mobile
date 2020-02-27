@@ -1,10 +1,7 @@
 import React, { Component } from 'react'
 import { Animated, View, StyleSheet, TouchableOpacity, StatusBar, Image, Dimensions, Platform } from 'react-native'
-import AsyncStorage from '@react-native-community/async-storage'
 import BackgroundTimer from 'react-native-background-timer'
-import Moment from 'moment'
-import v4 from 'uuid/v4'
-import { colors } from 'src/constants'
+import { colors, getData } from 'src/constants'
 import LeftClose from 'src/assets/leftClose.png'
 import ButtonsActions from 'src/components/ButtonsActions'
 import CreatePin from 'src/screens/CreatePin'
@@ -24,6 +21,7 @@ export default class Main extends Component {
       pinsSelect: 'all',
       editing: false,
       pins: [],
+      timer: false,
       second: 0
     }
   }
@@ -34,8 +32,21 @@ export default class Main extends Component {
   }
 
   _interval: any
+
+  handleTimerPress = () => {
+    const { timer, second, verticalActive } = this.state
+    if (timer) {
+      this.handleStopTimer()
+    } else {
+      this.handleStartTimer()
+      if (second === 0 && !verticalActive) {
+        this.handleAnimationPress('vertical', 'half')
+      }
+    }
+    this.setState({ timer: !timer })
+  }
+
   handleStartTimer = () => {
-    this.handleAnimationPress('vertical', 'half')
     if (Platform.OS === 'ios') {
       BackgroundTimer.start()
     }
@@ -46,48 +57,22 @@ export default class Main extends Component {
     }, 1000)
   }
 
+  handleResetTimer = () => {
+    this.setState({ second: 0, timer: false })
+    BackgroundTimer.clearInterval(this._interval)
+  }
+
   handleStopTimer = () => {
     BackgroundTimer.clearInterval(this._interval)
   }
 
   handleSetDataToState = async (type = false) => {
-    const pins = await this.getData(type)
+    const pins = await getData(type)
     !!pins && this.setState({ pins })
   }
 
-  getData = async (type = false) => {
-    try {
-      const value = await AsyncStorage.getItem('@storage_Pins')
-      if (value !== null) {
-        const groupsOfDay = {}
-        JSON.parse(value).map(item => {
-          const checkType = !type || type === 'all' ? true : type === item.type
-          const startDate = item.startDate
-          const dayObj = { id: v4(), startTime: startDate, type: 'day' }
-          if (groupsOfDay[startDate] && checkType) {
-            groupsOfDay[startDate].push(item)
-          } else if (checkType) {
-            groupsOfDay[startDate] = [dayObj, item]
-          }
-        })
-        const sortedGroup = Object.keys(groupsOfDay).sort((a, b) => {
-          return new Moment(a).format('YYYYMMDD') - new Moment(b).format('YYYYMMDD')
-        })
-        let groupArray = []
-        sortedGroup.map(key => {
-          groupArray = [...groupArray, ...groupsOfDay[key]]
-        })
-
-        return groupArray.reverse()
-      }
-    } catch (e) {
-      // error reading value
-      console.log(e)
-    }
-  }
-
   handleChangePins = async (itemFilter) => {
-    const pins = await this.getData()
+    const pins = await getData()
     if (itemFilter === 'all') {
       this.setState({ pins })
     } else {
@@ -110,7 +95,6 @@ export default class Main extends Component {
 
   handleAnimationPress = (direction, position) => {
     const { horizontalActive, verticalActive, horizontalAnimation, verticalAnimation } = this.state
-    console.log(horizontalActive, position)
     const active = direction === 'vertical' ? verticalActive : horizontalActive
     const animation = direction === 'vertical' ? verticalAnimation : horizontalAnimation
     const duration = direction === 'vertical' ? 900 : 800
@@ -119,11 +103,16 @@ export default class Main extends Component {
       half: active ? 100 : 50,
       complete: 0
     }
+
     Animated.timing(animation, {
       toValue: finalValue[position],
       duration,
       useNativeDriver: true
-    }).start()
+    }).start(() => {
+      if (finalValue[position] === 100 && direction === 'vertical') {
+        this.handleResetTimer()
+      }
+    })
     this.setState(direction === 'vertical'
       ? { verticalActive: position === 'complete' ? verticalActive : !verticalActive }
       : { horizontalActive: !horizontalActive })
@@ -196,29 +185,49 @@ export default class Main extends Component {
   }
 
   render () {
-    const { height, second, verticalActive, pins, editing, width, pinsSelect } = this.state
+    const { height, timer, second, verticalActive, pins, editing, width, pinsSelect } = this.state
     return (
       <View style={styles.container}>
         <StatusBar backgroundColor={colors.backgroundColor} barStyle='light-content' />
         <Animated.View style={[styles.mainContainer, { height }, this.handleTransform('vertical')]}>
           <Animated.View style={[styles.timeLineContainer, { width }, this.handleTransform('horizontal')]}>
-            <TimeLine pins={pins} width={width} onChange={this.handleChange} pinsSelect={pinsSelect} onAnimationPress={this.handleAnimationPress} />
+            <TimeLine
+              pins={pins}
+              width={width}
+              onChange={this.handleChange}
+              pinsSelect={pinsSelect}
+              onAnimationPress={this.handleAnimationPress}
+            />
+
             {this.renderLeftArrow()}
             <ButtonsActions
               active={verticalActive}
-              onTimerPress={this.handleStartTimer}
-              onPinPress={() => this.handleAnimationPress('vertical', 'half')}
+              second={second}
+              timer={timer}
+              onTimerPress={this.handleTimerPress}
+              onPinPress={this.handleAnimationPress}
             />
           </Animated.View>
 
-          <Animated.View style={[styles.sideContainer, { width: this.state.width }, this.handleTransform('side')]}>
-            <SideScreen editing={editing} onChange={this.handleChange} onAnimatedPress={this.handleAnimationPress} onItemPress={this.handleMenuItemPress} />
+          <Animated.View style={[styles.sideContainer, { width }, this.handleTransform('side')]}>
+            <SideScreen
+              editing={editing}
+              onChange={this.handleChange}
+              onAnimatedPress={this.handleAnimationPress}
+              onItemPress={this.handleMenuItemPress}
+            />
           </Animated.View>
 
         </Animated.View>
         <Animated.View style={[styles.pinPageContainer, { height }, this.handleTransform('below')]}>
 
-          <CreatePin onStopTimer={this.handleStopTimer} second={second} onAnimatedPress={this.handleAnimationPress} onCreatePin={this.handleSetDataToState} />
+          <CreatePin
+            onTimerPress={this.handleTimerPress}
+            second={second}
+            timer={timer}
+            onAnimatedPress={this.handleAnimationPress}
+            onCreatePin={this.handleSetDataToState}
+          />
 
         </Animated.View>
       </View>

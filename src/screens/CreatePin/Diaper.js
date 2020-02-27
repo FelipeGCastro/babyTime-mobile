@@ -15,6 +15,7 @@ const Diaper = ({
   option,
   startTime,
   startDate,
+  timer,
   endTime,
   endDate
 }) => {
@@ -34,6 +35,7 @@ const Diaper = ({
           <TimeInputs
             onHandleChange={onHandleChange}
             startTime={startTime}
+            timer={timer}
             startDate={startDate}
             endTime={endTime}
             endDate={endDate}

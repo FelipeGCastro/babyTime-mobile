@@ -69,7 +69,6 @@ export default class SideScreen extends Component {
 
   renderOptions = (item) => {
     const { comments, option, note, startTime, startDate, endTime, endDate, ml } = this.state
-    console.log(comments, option, note, typeof startTime, typeof startDate, endTime, endDate, ml, 'renderOptions')
     return (
       <KeyboardAwareScrollView
         contentContainerStyle={styles.containerScroll}

@@ -10,6 +10,7 @@ const Sleep = ({
   startDate,
   endTime,
   endDate,
+  timer,
   editing
 }) => {
   const renderItem = item => {
@@ -28,6 +29,7 @@ const Sleep = ({
           <TimeInputs
             onHandleChange={onHandleChange}
             startTime={startTime}
+            timer={timer}
             startDate={startDate}
             endTime={endTime}
             endDate={endDate}

@@ -21,6 +21,7 @@ const Feed = ({
   startDate,
   ml,
   endTime,
+  timer,
   endDate
 }) => {
   const renderItem = item => {
@@ -50,7 +51,7 @@ const Feed = ({
 
       {option ? (
         <>
-          <View style={{ marginBottom: 10 }}>
+          <View style={{ marginBottom: 15 }}>
             <OneOption
               onHandleChange={onHandleChange}
               itemColor={colors.feedColor}
@@ -61,6 +62,7 @@ const Feed = ({
           <TimeInputs
             onHandleChange={onHandleChange}
             startTime={startTime}
+            timer={timer}
             startDate={startDate}
             endTime={endTime}
             endDate={endDate}

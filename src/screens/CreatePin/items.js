@@ -46,7 +46,7 @@ const Comments = ({ comments, onHandleChange }) => {
   )
 }
 
-const TimeInputs = ({ onHandleChange, startTime, startDate, endTime, endDate }) => {
+const TimeInputs = ({ onHandleChange, startTime, startDate, endTime, endDate, timer }) => {
   const date = (data, mode, placeholder, onDateChange, format, minDate) => (
     <MyDatePicker
       data={data}
@@ -62,7 +62,7 @@ const TimeInputs = ({ onHandleChange, startTime, startDate, endTime, endDate }) 
   const dateFormat = 'DD/MM/YYYY'
   return (
     <View
-      style={styles.commentContainer}
+      style={styles.dateContainer}
     >
       <View style={styles.timerContainer}>
         <Text style={styles.titleTime}>{polyglot.t('begining')}:</Text>
@@ -70,17 +70,24 @@ const TimeInputs = ({ onHandleChange, startTime, startDate, endTime, endDate }) 
         {date(startDate, 'date', polyglot.t('date'), onHandleChange('startDate'), dateFormat, null)}
 
       </View>
-      <View style={styles.timerContainer}>
-        <Text style={styles.titleTime}>{polyglot.t('end')}:</Text>
-        {date(endTime, 'time', polyglot.t('hour'), onHandleChange('endTime'), 'HH:mm', startTime)}
-        {date(endDate, 'date', polyglot.t('date'), onHandleChange('endDate'), dateFormat, startDate)}
-      </View>
+      {!timer && (
+        <View style={styles.timerContainer}>
+          <Text style={styles.titleTime}>{polyglot.t('end')}:</Text>
+          {date(endTime, 'time', polyglot.t('hour'), onHandleChange('endTime'), 'HH:mm', startTime)}
+          {date(endDate, 'date', polyglot.t('date'), onHandleChange('endDate'), dateFormat, startDate)}
+        </View>)}
     </View>
   )
 }
 
 const styles = StyleSheet.create({
   commentContainer: {
+    justifyContent: 'center',
+    alignItems: 'stretch',
+    paddingHorizontal: 20,
+    marginBottom: 20
+  },
+  dateContainer: {
     justifyContent: 'center',
     alignItems: 'stretch',
     paddingHorizontal: 20

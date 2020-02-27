@@ -3,7 +3,7 @@ import { View, StyleSheet } from 'react-native'
 // import { colors } from 'src/constants'
 import { Comments, TimeInputs } from './items'
 
-const Bath = ({ comments, onHandleChange, startTime, startDate, endTime, endDate }) => {
+const Bath = ({ comments, onHandleChange, startTime, startDate, endTime, endDate, timer }) => {
   return (
     <View
       style={styles.container}
@@ -11,6 +11,7 @@ const Bath = ({ comments, onHandleChange, startTime, startDate, endTime, endDate
       <TimeInputs
         onHandleChange={onHandleChange}
         startTime={startTime}
+        timer={timer}
         startDate={startDate}
         endTime={endTime}
         endDate={endDate}

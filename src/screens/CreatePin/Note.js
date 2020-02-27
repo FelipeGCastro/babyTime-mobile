@@ -7,6 +7,7 @@ const Note = ({
   note, onHandleChange, startTime,
   startDate,
   endTime,
+  timer,
   endDate
 }) => {
   const countNote = 280 - note.length
@@ -17,6 +18,7 @@ const Note = ({
       <TimeInputs
         onHandleChange={onHandleChange}
         startTime={startTime}
+        timer={timer}
         startDate={startDate}
         endTime={endTime}
         endDate={endDate}
@@ -52,6 +54,8 @@ const styles = StyleSheet.create({
     marginTop: 10
   },
   input: {
+    justifyContent: 'flex-start',
+    alignItems: 'flex-start',
     minHeight: 150,
     backgroundColor: 'rgba(255,255,255, 0.06)',
     borderRadius: 8,
