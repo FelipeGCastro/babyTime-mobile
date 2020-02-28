@@ -20,6 +20,7 @@ const ptBR = {
   poop: 'Cocô',
   pee: 'Xixi',
   pooAndPee: 'Cocô/Xixi',
+  editing: 'Editando',
   all: 'Todos',
   save: 'Guardar',
   finish: 'Finalizar'

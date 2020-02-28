@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 
-import { View, FlatList, TouchableOpacity, StyleSheet, Text } from 'react-native'
+import { View, FlatList, TouchableOpacity, StyleSheet, Text, LayoutAnimation } from 'react-native'
 import { colors, polyglot } from 'src/constants'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { Options } from 'src/components'
@@ -55,7 +55,7 @@ export default class SideScreen extends Component {
 
   handleChange = name => value => {
     this.setState({ [name]: value })
-    // if (name === 'option') { this.animationMenu() }
+    if (name === 'option') { LayoutAnimation.easeInEaseOut() }
   }
 
   handleCloseBottom = () => {
@@ -67,13 +67,30 @@ export default class SideScreen extends Component {
     }, 800)
   }
 
+  handleJustClose = () => {
+    const { onAnimatedPress } = this.props
+    onAnimatedPress('horizontal', 'close')
+  }
+
+  renderClose = () => (
+
+    <TouchableOpacity
+      onPress={this.handleJustClose}
+      style={styles.cancel}
+    >
+      <Text style={styles.buttonText}>X</Text>
+    </TouchableOpacity>
+  )
+
   renderOptions = (item) => {
     const { comments, option, note, startTime, startDate, endTime, endDate, ml } = this.state
     return (
       <KeyboardAwareScrollView
         contentContainerStyle={styles.containerScroll}
         keyboardShouldPersistTaps='handled'
+        extraScrollHeight={40}
       >
+        <Text style={styles.editingTitle}>{polyglot.t('editing')}</Text>
         <Options
           item={item}
           option={option}
@@ -86,6 +103,7 @@ export default class SideScreen extends Component {
           note={note}
           endDate={endDate}
         />
+        {this.renderClose()}
         <TouchableOpacity
           onPress={this.handleCloseBottom}
           style={styles.close}
@@ -123,8 +141,9 @@ const styles = StyleSheet.create({
   },
   containerScroll: {
     flexGrow: 1,
-    justifyContent: 'space-between',
-    paddingVertical: 20
+    justifyContent: 'flex-end',
+    paddingVertical: 30,
+    paddingTop: 50
   },
   optionContainer: {
     height: 44,
@@ -153,5 +172,25 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 18,
     color: colors.primaryTextColor
+  },
+  editingTitle: {
+    flex: 1,
+    marginTop: 20,
+    fontSize: 22,
+    color: colors.primaryTextColor,
+    textAlign: 'center'
+  },
+  cancel: {
+    width: 50,
+    height: 50,
+    borderWidth: 2,
+    borderColor: colors.feedColor,
+    borderRadius: 25,
+    justifyContent: 'center',
+    backgroundColor: colors.backgroundColor,
+    alignItems: 'center',
+    position: 'absolute',
+    left: 20,
+    bottom: 48
   }
 })

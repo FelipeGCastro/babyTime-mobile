@@ -48,6 +48,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.activeColor
   },
   buttonsIcon: {
-    width: 45
+    width: 40,
+    height: 40
   }
 })

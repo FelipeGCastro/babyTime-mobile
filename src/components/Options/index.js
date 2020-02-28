@@ -40,6 +40,8 @@ export default function Options ({
         comments={comments}
         startTime={startTime}
         startDate={startDate}
+        endTime={endTime}
+        endDate={endDate}
         onHandleChange={onHandleChange}
       />),
     diaper: (

@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Animated, View, StyleSheet, TouchableOpacity, StatusBar, Image, Dimensions, Platform } from 'react-native'
+import { Animated, LayoutAnimation, View, StyleSheet, TouchableOpacity, StatusBar, Image, Dimensions, Platform } from 'react-native'
 import BackgroundTimer from 'react-native-background-timer'
 import { colors, getData } from 'src/constants'
 import LeftClose from 'src/assets/leftClose.png'
@@ -16,8 +16,8 @@ export default class Main extends Component {
       width: Dimensions.get('window').width,
       verticalAnimation: new Animated.Value(100),
       horizontalAnimation: new Animated.Value(100),
-      verticalActive: false,
-      horizontalActive: false,
+      verticalActive: 100,
+      horizontalActive: 100,
       pinsSelect: 'all',
       editing: false,
       pins: [],
@@ -39,7 +39,7 @@ export default class Main extends Component {
       this.handleStopTimer()
     } else {
       this.handleStartTimer()
-      if (second === 0 && !verticalActive) {
+      if (second === 0 && (verticalActive === 100)) {
         this.handleAnimationPress('vertical', 'half')
       }
     }
@@ -53,7 +53,7 @@ export default class Main extends Component {
     this._interval = BackgroundTimer.setInterval(() => {
       this.setState({
         second: this.state.second + 1
-      })
+      }, () => LayoutAnimation.easeInEaseOut())
     }, 1000)
   }
 
@@ -100,7 +100,7 @@ export default class Main extends Component {
     const duration = direction === 'vertical' ? 900 : 800
     const finalValue = {
       close: 100,
-      half: active ? 100 : 50,
+      half: active === 100 ? 50 : 100,
       complete: 0
     }
 
@@ -114,8 +114,8 @@ export default class Main extends Component {
       }
     })
     this.setState(direction === 'vertical'
-      ? { verticalActive: position === 'complete' ? verticalActive : !verticalActive }
-      : { horizontalActive: !horizontalActive })
+      ? { verticalActive: finalValue[position] }
+      : { horizontalActive: finalValue[position] })
   }
 
   handleTransform = (name) => {
@@ -184,6 +184,24 @@ export default class Main extends Component {
     this.handleAnimationPress('horizontal', 'close')
   }
 
+  handleCloseEverthing = () => {
+    const { verticalActive, horizontalActive } = this.state
+    horizontalActive !== 100 && this.handleAnimationPress('horizontal', 'close')
+    verticalActive !== 100 && this.handleAnimationPress('vertical', 'close')
+  }
+
+  renderFullScreenButton = () => {
+    const { verticalActive, horizontalActive, height, width } = this.state
+    const checkActive = verticalActive !== 100 || horizontalActive !== 100
+    return checkActive && (
+      <TouchableOpacity
+        onPress={this.handleCloseEverthing}
+        style={[styles.fullScreenButton, { height, width }]}
+        activeOpacity={0.7}
+      />
+    )
+  }
+
   render () {
     const { height, timer, second, verticalActive, pins, editing, width, pinsSelect } = this.state
     return (
@@ -200,13 +218,15 @@ export default class Main extends Component {
             />
 
             {this.renderLeftArrow()}
+
             <ButtonsActions
-              active={verticalActive}
+              active={verticalActive !== 100}
               second={second}
               timer={timer}
               onTimerPress={this.handleTimerPress}
               onPinPress={this.handleAnimationPress}
             />
+            {this.renderFullScreenButton()}
           </Animated.View>
 
           <Animated.View style={[styles.sideContainer, { width }, this.handleTransform('side')]}>
@@ -279,5 +299,10 @@ const styles = StyleSheet.create({
     ],
     width: 35,
     height: 35
+  },
+  fullScreenButton: {
+    position: 'absolute',
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)'
   }
 })

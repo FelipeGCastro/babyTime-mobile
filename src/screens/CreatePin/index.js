@@ -29,10 +29,14 @@ export default class CreatePin extends Component {
   }
 
   handleMenuItemPress = (item, position) => () => {
-    const { onAnimatedPress } = this.props
+    const { onAnimatedPress, second } = this.props
     const { checked } = this.state
-    const startTime = new Moment(new Date()).format('HH:mm')
-    const startDate = new Moment(new Date()).format('DD/MM/YYYY')
+    if (!second) {
+      this.setState({
+        startTime: new Moment(new Date()).format('HH:mm'),
+        startDate: new Moment(new Date()).format('DD/MM/YYYY')
+      })
+    }
     const optionObj = {
       note: 'note',
       bath: 'bath'
@@ -41,11 +45,11 @@ export default class CreatePin extends Component {
       onAnimatedPress('vertical', position)
       setTimeout(() => {
         this.animationMenu(800)
-        this.setState({ checked: item, startTime, startDate, option: optionObj[item] || false })
+        this.setState({ checked: item, option: optionObj[item] || false })
       }, 400)
     } else {
       this.animationMenu()
-      this.setState({ checked: item, startTime, startDate, option: optionObj[item] || false })
+      this.setState({ checked: item, option: optionObj[item] || false })
     }
   }
 
@@ -59,17 +63,28 @@ export default class CreatePin extends Component {
     }).start()
   }
 
+  componentDidUpdate (prevProps) {
+    if (prevProps.second !== this.props.second &&
+      this.props.second > 0 && this.props.second < 2) {
+      this.setState({
+        startTime: new Moment(new Date()).format('HH:mm'),
+        startDate: new Moment(new Date()).format('DD/MM/YYYY')
+      })
+    }
+  }
+
   handleCloseBottom = async () => {
     const { checked, comments, option, note, startTime, startDate, endTime, endDate, ml, duration } = this.state
     const { onAnimatedPress, onCreatePin } = this.props
     var inSec = false
     if (endTime && endDate) {
-      const now = startDate + ' ' + startTime
-      const then = endDate + ' ' + endTime
-      var ms = Moment(now, 'DD/MM/YYYY HH:mm').diff(Moment(then, 'DD/MM/YYYY HH:mm'))
-      var d = Moment.duration(ms)
-      var s = Math.floor(d.asHours()) + Moment.utc(ms).format('HH:mm:ss')
-      inSec = Moment(s, 'HH:mm:ss').diff(Moment().startOf('day'), 'seconds')
+      const now = Moment(`${startDate + ' ' + startTime}`, 'DD/MM/YYYY HH:mm')
+      const then = Moment(`${endDate + ' ' + endTime}`, 'DD/MM/YYYY HH:mm')
+      //       var ms = moment(now,"DD/MM/YYYY HH:mm:ss").diff(moment(then,"DD/MM/YYYY HH:mm:ss"));
+      // var d = moment.duration(ms);
+      // var s = Math.floor(d.asHours()) + moment.utc(ms).format(":mm:ss")
+      var durationDiff = Moment.duration(then.diff(now))
+      inSec = durationDiff.asSeconds()
     }
 
     const finalDuration = duration || inSec
@@ -210,9 +225,9 @@ export default class CreatePin extends Component {
     )
   }
 
-  handleTimerFinish = () => {
+  handleTimerFinish = async () => {
     const { onTimerPress, second } = this.props
-    onTimerPress()
+    await onTimerPress()
     this.setState({ duration: second }, this.handleCloseBottom)
   }
 
