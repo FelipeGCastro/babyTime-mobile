@@ -34,7 +34,7 @@ export default class SideScreen extends Component {
 
   handleSetEditing = () => {
     const { editing } = this.props
-    this.setState({ ...this.state, ...editing })
+    this.setState({ ...editing })
   }
 
   renderMenuItem = ({ item, index }) => {
@@ -68,8 +68,12 @@ export default class SideScreen extends Component {
   }
 
   handleJustClose = () => {
-    const { onAnimatedPress } = this.props
+    const { onAnimatedPress, onChange } = this.props
     onAnimatedPress('horizontal', 'close')
+    onChange('editing')(false)
+    setTimeout(() => {
+      this.setState({ type: false })
+    }, 800)
   }
 
   renderClose = () => (
