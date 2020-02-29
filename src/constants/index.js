@@ -1,11 +1,13 @@
 import colors from './colors'
 import polyglot from './polyglot'
 import icons from './icons'
-import { getData } from './utils'
+import { getData, changePins, removePin } from './utils'
 
 export {
   colors,
   polyglot,
   icons,
-  getData
+  getData,
+  changePins,
+  removePin
 }

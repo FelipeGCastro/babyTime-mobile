@@ -46,13 +46,13 @@ const Comments = ({ comments, onHandleChange }) => {
   )
 }
 
-const TimeInputs = ({ onHandleChange, startTime, startDate, endTime, endDate, timer }) => {
+const TimeInputs = ({ type, onHandleChange, startTime, startDate, endTime, endDate, timer }) => {
   const date = (data, mode, placeholder, onDateChange, format, minDate) => (
     <MyDatePicker
       data={data}
       mode={mode}
       placeholder={placeholder}
-      dateInputStyle={styles.dateInputStyle}
+      dateInputStyle={[styles.dateInputStyle, { borderColor: colors[type] }]}
       styleContainer={{ width: 130 }}
       format={format}
       minDate={minDate}
@@ -134,9 +134,9 @@ const styles = StyleSheet.create({
   dateInputStyle: {
     marginLeft: 15,
     height: 44,
-    borderRadius: 4,
+    borderRadius: 10,
     borderColor: colors.primaryTextColor,
-    borderWidth: 2
+    borderWidth: 1
   },
   timerContainer: {
     flexDirection: 'row',

@@ -36,6 +36,7 @@ const Diaper = ({
             onHandleChange={onHandleChange}
             startTime={startTime}
             timer={timer}
+            type='diaper'
             startDate={startDate}
             endTime={endTime}
             endDate={endDate}

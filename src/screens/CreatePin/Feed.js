@@ -63,6 +63,7 @@ const Feed = ({
             onHandleChange={onHandleChange}
             startTime={startTime}
             timer={timer}
+            type='feed'
             startDate={startDate}
             endTime={endTime}
             endDate={endDate}

@@ -33,6 +33,44 @@ const getData = async (type = false) => {
   }
 }
 
+const changePins = async (item) => {
+  try {
+    const pins = await AsyncStorage.getItem('@storage_Pins')
+    if (pins !== null) {
+      const editedPins = JSON.parse(pins).map(i => {
+        if (i.id === item.id) {
+          i = item
+          return i
+        }
+        return i
+      })
+      await AsyncStorage.setItem('@storage_Pins', JSON.stringify(editedPins))
+    }
+    return true
+  } catch (error) {
+    console.tron.log(error)
+    return false
+  }
+}
+
+const removePin = async (id) => {
+  try {
+    const pins = await AsyncStorage.getItem('@storage_Pins')
+    if (pins !== null) {
+      const editedPins = JSON.parse(pins).filter(i => {
+        return i.id !== id
+      })
+      await AsyncStorage.setItem('@storage_Pins', JSON.stringify(editedPins))
+    }
+    return true
+  } catch (error) {
+    console.tron.log(error)
+    return false
+  }
+}
+
 export {
-  getData
+  getData,
+  changePins,
+  removePin
 }

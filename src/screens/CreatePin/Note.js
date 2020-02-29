@@ -19,6 +19,7 @@ const Note = ({
         onHandleChange={onHandleChange}
         startTime={startTime}
         timer={timer}
+        type='note'
         startDate={startDate}
         endTime={endTime}
         endDate={endDate}

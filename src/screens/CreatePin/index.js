@@ -80,9 +80,6 @@ export default class CreatePin extends Component {
     if (endTime && endDate) {
       const now = Moment(`${startDate + ' ' + startTime}`, 'DD/MM/YYYY HH:mm')
       const then = Moment(`${endDate + ' ' + endTime}`, 'DD/MM/YYYY HH:mm')
-      //       var ms = moment(now,"DD/MM/YYYY HH:mm:ss").diff(moment(then,"DD/MM/YYYY HH:mm:ss"));
-      // var d = moment.duration(ms);
-      // var s = Math.floor(d.asHours()) + moment.utc(ms).format(":mm:ss")
       var durationDiff = Moment.duration(then.diff(now))
       inSec = durationDiff.asSeconds()
     }

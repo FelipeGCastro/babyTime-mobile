@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
 
-import { View, FlatList, TouchableOpacity, StyleSheet, Text, LayoutAnimation } from 'react-native'
+import { View, FlatList, TouchableOpacity, StyleSheet, Text, LayoutAnimation, Alert } from 'react-native'
 import { colors, polyglot } from 'src/constants'
+import Moment from 'moment'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import { Options } from 'src/components'
 
@@ -27,9 +28,20 @@ export default class SideScreen extends Component {
   }
 
   componentDidUpdate (prevProps) {
-    if (this.props.editing && (prevProps.editing !== this.props.editing)) {
+    if (this.props.editing && (prevProps.editing.id !== this.props.editing.id)) {
       this.handleSetEditing()
     }
+    if (prevProps.horizontalActive !== this.props.horizontalActive &&
+      this.props.horizontalActive === 100
+    ) {
+      this.resetState()
+    }
+  }
+
+  resetState = () => {
+    setTimeout(() => {
+      this.setState({ type: false, selected: false })
+    }, 800)
   }
 
   handleSetEditing = () => {
@@ -58,19 +70,75 @@ export default class SideScreen extends Component {
     if (name === 'option') { LayoutAnimation.easeInEaseOut() }
   }
 
+  handleDeletePin = () => {
+    this.props.onRemovePin(this.state.id)
+    this.handleJustClose()
+  }
+
+  handleDeleteAlert = () => {
+    Alert.alert(
+      polyglot.t('deletePinAlertTitle'),
+      polyglot.t('deletePinAlertMsg'),
+      [
+        { text: polyglot.t('cancel'), style: 'cancel' },
+        {
+          text: polyglot.t('confirmDelete'),
+          style: 'destructive',
+          onPress: this.handleDeletePin
+        }
+      ]
+    )
+  }
+
   handleCloseBottom = () => {
-    const { onAnimatedPress, onChange } = this.props
-    onAnimatedPress('horizontal', 'close')
-    onChange('editing')(false)
-    setTimeout(() => {
-      this.setState({ type: false })
-    }, 800)
+    const { id, type, comments, option, duration, note, startTime, startDate, endTime, endDate, ml } = this.state
+    const { onEditingChange, editing } = this.props
+    var inSec = false
+    if (endTime && endDate) {
+      const now = Moment(`${startDate + ' ' + startTime}`, 'DD/MM/YYYY HH:mm')
+      const then = Moment(`${endDate + ' ' + endTime}`, 'DD/MM/YYYY HH:mm')
+      var durationDiff = Moment.duration(then.diff(now))
+      inSec = durationDiff.asSeconds()
+    }
+
+    const finalDuration = inSec || duration
+    const pinsObj = {
+      id,
+      type,
+      comments,
+      option,
+      duration: finalDuration,
+      startTime,
+      startDate,
+      note,
+      endDate: endDate || null,
+      endTime: endTime || null,
+      ml
+    }
+    console.log(this.verifyPin(pinsObj, editing))
+    if (this.verifyPin(pinsObj, editing)) {
+      this.handleJustClose()
+      return
+    }
+    onEditingChange(pinsObj)
+    this.handleJustClose()
+  }
+
+  verifyPin = (pinsObj, editing) => {
+    return pinsObj.option === editing.option &&
+    pinsObj.comments === editing.comments &&
+    pinsObj.duration === editing.duration &&
+    pinsObj.startTime === editing.startTime &&
+    pinsObj.startDate === editing.startDate &&
+    pinsObj.note === editing.note &&
+    pinsObj.endDate === editing.endDate &&
+    pinsObj.endTime === editing.endTime &&
+    pinsObj.ml === editing.ml
   }
 
   handleJustClose = () => {
-    const { onAnimatedPress, onChange } = this.props
+    const { onAnimatedPress } = this.props
     onAnimatedPress('horizontal', 'close')
-    onChange('editing')(false)
     setTimeout(() => {
       this.setState({ type: false })
     }, 800)
@@ -86,6 +154,10 @@ export default class SideScreen extends Component {
     </TouchableOpacity>
   )
 
+  handleChangeEditing = name => value => {
+    this.setState({ [name]: value })
+  }
+
   renderOptions = (item) => {
     const { comments, option, note, startTime, startDate, endTime, endDate, ml } = this.state
     return (
@@ -94,7 +166,17 @@ export default class SideScreen extends Component {
         keyboardShouldPersistTaps='handled'
         extraScrollHeight={40}
       >
-        <Text style={styles.editingTitle}>{polyglot.t('editing')}</Text>
+        <View style={styles.titleContainer}>
+          <View style={{ width: 60 }} />
+          <Text style={styles.editingTitle}>{polyglot.t('editing')}</Text>
+          <TouchableOpacity
+            onPress={this.handleDeleteAlert}
+            style={styles.deleteButton}
+            activeOpacity={0.7}
+          >
+            <Text style={{ fontSize: 16, color: colors.feedColor }}>Excluir</Text>
+          </TouchableOpacity>
+        </View>
         <Options
           item={item}
           option={option}
@@ -159,6 +241,19 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
     paddingHorizontal: 20
   },
+  deleteButton: {
+    height: 44,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  titleContainer: {
+    flex: 1,
+    // marginTop: 20,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 15,
+    alignItems: 'center'
+  },
   textOption: {
     fontSize: 18,
     color: colors.primaryTextColor
@@ -178,8 +273,6 @@ const styles = StyleSheet.create({
     color: colors.primaryTextColor
   },
   editingTitle: {
-    flex: 1,
-    marginTop: 20,
     fontSize: 22,
     color: colors.primaryTextColor,
     textAlign: 'center'

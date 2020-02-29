@@ -23,7 +23,11 @@ const ptBR = {
   editing: 'Editando',
   all: 'Todos',
   save: 'Guardar',
-  finish: 'Finalizar'
+  finish: 'Finalizar',
+  deletePinAlertTitle: 'Excluir Pin',
+  deletePinAlertMsg: 'Tem certeza que deseja excluir o Pin?',
+  cancel: 'Cancelar',
+  confirmDelete: 'Sim'
 }
 
 const polyglot = new Polyglot()

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Animated, LayoutAnimation, View, StyleSheet, TouchableOpacity, StatusBar, Image, Dimensions, Platform } from 'react-native'
 import BackgroundTimer from 'react-native-background-timer'
-import { colors, getData } from 'src/constants'
+import { colors, getData, changePins, removePin } from 'src/constants'
 import LeftClose from 'src/assets/leftClose.png'
 import ButtonsActions from 'src/components/ButtonsActions'
 import CreatePin from 'src/screens/CreatePin'
@@ -18,7 +18,7 @@ export default class Main extends Component {
       horizontalAnimation: new Animated.Value(100),
       verticalActive: 100,
       horizontalActive: 100,
-      pinsSelect: 'all',
+      pinsSelected: 'all',
       editing: false,
       pins: [],
       timer: false,
@@ -28,7 +28,7 @@ export default class Main extends Component {
 
   componentDidMount = () => {
     Dimensions.addEventListener('change', this.handler)
-    this.handleSetDataToState()
+    this.handleSetDataToState('all')
   }
 
   _interval: any
@@ -85,6 +85,16 @@ export default class Main extends Component {
     }
   }
 
+  handleEditingPins = async item => {
+    const result = await changePins(item)
+    result && this.handleSetDataToState(this.state.pinsSelected)
+  }
+
+  handleRemovePin = async id => {
+    const result = await removePin(id)
+    result && this.handleSetDataToState(this.state.pinsSelected)
+  }
+
   componentWillUnmount = () => {
     Dimensions.removeEventListener('change', this.handler)
   }
@@ -109,8 +119,13 @@ export default class Main extends Component {
       duration,
       useNativeDriver: true
     }).start(() => {
-      if (finalValue[position] === 100 && direction === 'vertical') {
-        this.handleResetTimer()
+      if (finalValue[position] === 100) {
+        if (direction === 'vertical') {
+          this.handleResetTimer()
+        }
+        if (direction === 'horizontal') {
+          this.setState({ editing: false })
+        }
       }
     })
     this.setState(direction === 'vertical'
@@ -181,6 +196,7 @@ export default class Main extends Component {
 
   handleMenuItemPress = async value => {
     this.handleSetDataToState(value)
+    this.setState({ pinsSelected: value })
     this.handleAnimationPress('horizontal', 'close')
   }
 
@@ -203,7 +219,7 @@ export default class Main extends Component {
   }
 
   render () {
-    const { height, timer, second, verticalActive, pins, editing, width, pinsSelect } = this.state
+    const { height, timer, second, horizontalActive, verticalActive, pins, editing, width, pinsSelect } = this.state
     return (
       <View style={styles.container}>
         <StatusBar backgroundColor={colors.backgroundColor} barStyle='light-content' />
@@ -233,6 +249,9 @@ export default class Main extends Component {
             <SideScreen
               editing={editing}
               onChange={this.handleChange}
+              onRemovePin={this.handleRemovePin}
+              onEditingChange={this.handleEditingPins}
+              horizontalActive={horizontalActive}
               onAnimatedPress={this.handleAnimationPress}
               onItemPress={this.handleMenuItemPress}
             />
@@ -245,6 +264,7 @@ export default class Main extends Component {
             onTimerPress={this.handleTimerPress}
             second={second}
             timer={timer}
+            verticalActive={verticalActive}
             onAnimatedPress={this.handleAnimationPress}
             onCreatePin={this.handleSetDataToState}
           />
