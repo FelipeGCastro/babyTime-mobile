@@ -267,7 +267,7 @@ export default class CreatePin extends Component {
 
   handleJustResetTimer = () => {
     this.props.onResetTimer()
-    LayoutAnimation.easeInEaseOut()
+    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
   }
 
   renderResetArrow = () => {

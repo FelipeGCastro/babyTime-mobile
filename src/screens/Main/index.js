@@ -67,7 +67,7 @@ export default class Main extends Component {
     this._interval = BackgroundTimer.setInterval(() => {
       this.setState({
         second: this.state.second + 1
-      }, () => LayoutAnimation.easeInEaseOut())
+      }, () => LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut))
     }, 1000)
   }
 
