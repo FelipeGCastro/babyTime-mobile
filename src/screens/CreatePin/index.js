@@ -1,5 +1,16 @@
 import React, { Component } from 'react'
-import { View, Image, StyleSheet, TouchableOpacity, FlatList, Text, Animated } from 'react-native'
+import {
+  View,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  FlatList,
+  Text,
+  Animated,
+  Platform,
+  UIManager,
+  LayoutAnimation
+} from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import AsyncStorage from '@react-native-community/async-storage'
 import Moment from 'moment'
@@ -14,6 +25,12 @@ const menuList = [
   'note',
   'bath'
 ]
+
+if (Platform.OS === 'android') {
+  if (UIManager.setLayoutAnimationEnabledExperimental) {
+    UIManager.setLayoutAnimationEnabledExperimental(true)
+  }
+}
 export default class CreatePin extends Component {
   state = {
     checked: false,
@@ -130,9 +147,10 @@ export default class CreatePin extends Component {
   }
 
   handleJustClose = () => {
-    const { onAnimatedPress } = this.props
+    const { onAnimatedPress, onResetTimer } = this.props
     onAnimatedPress('vertical', 'close')
     setTimeout(() => {
+      onResetTimer()
       this.resetState()
     }, 800)
   }
@@ -247,6 +265,22 @@ export default class CreatePin extends Component {
     )
   }
 
+  handleJustResetTimer = () => {
+    this.props.onResetTimer()
+    LayoutAnimation.easeInEaseOut()
+  }
+
+  renderResetArrow = () => {
+    return (
+      <TouchableOpacity
+        style={[styles.ArrowButton, styles.rightArrow]}
+        onPress={this.handleJustResetTimer}
+      >
+        <Text style={styles.buttonText}>X</Text>
+      </TouchableOpacity>
+    )
+  }
+
   render () {
     const { checked } = this.state
     const { second } = this.props
@@ -259,10 +293,11 @@ export default class CreatePin extends Component {
         keyboardShouldPersistTaps='handled'
       >
         {!!second && (
-          <Text
-            style={styles.timerText}
-          >{secondTimer}
-          </Text>)}
+          <View style={{ justifyContent: 'center', marginBottom: 20, alignItems: 'center' }}>
+            <Text style={styles.timerText}>{secondTimer}</Text>
+            {this.renderResetArrow()}
+          </View>
+        )}
         <View style={styles.principalMenu}>
           <FlatList
             data={menuList}
@@ -302,8 +337,7 @@ const styles = StyleSheet.create({
   timerText: {
     fontSize: 45,
     color: colors.primaryTextColor,
-    textAlign: 'center',
-    marginBottom: 20
+    textAlign: 'center'
   },
   buttonContainer: {
     justifyContent: 'center',
@@ -352,6 +386,25 @@ const styles = StyleSheet.create({
   buttonText: {
     fontSize: 18,
     color: colors.primaryTextColor
+  },
+  ArrowButton: {
+    width: 50,
+    height: 44,
+    borderWidth: 1.5,
+    paddingRight: 5,
+    paddingVertical: 5,
+    backgroundColor: colors.backgroundColor,
+    borderColor: colors.primaryTextColor,
+    position: 'absolute',
+    justifyContent: 'center',
+    alignItems: 'flex-start'
+  },
+  rightArrow: {
+    right: 0,
+    borderBottomLeftRadius: 22,
+    borderTopLeftRadius: 22,
+    paddingLeft: 20,
+    borderRightWidth: 0
   },
   stop: {
     width: 80,

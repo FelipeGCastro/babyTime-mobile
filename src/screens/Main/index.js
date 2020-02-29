@@ -134,9 +134,9 @@ export default class Main extends Component {
       useNativeDriver: true
     }).start(() => {
       if (finalValue[position] === 100) {
-        if (direction === 'vertical') {
-          this.handleResetTimer()
-        }
+        // if (direction === 'vertical') {
+        //   this.handleResetTimer()
+        // }
         if (direction === 'horizontal') {
           this.setState({ editing: false })
         }
@@ -196,7 +196,9 @@ export default class Main extends Component {
   renderMiddleArrow = (side = false) => {
     return (
       <TouchableOpacity
-        style={[styles.ArrowButton, styles.rightArrow, side && { bottom: this.state.height / 2.7 }]}
+        style={[styles.ArrowButton,
+          styles.rightArrow,
+          side && { bottom: this.state.height / 2.7 }]}
         onPress={() => side ? this.handleMenuItemPress('all') : this.handleAnimationPress('horizontal', 'half')}
       >
         {side ? <Image source={icons.allMenu} resizeMode='contain' style={styles.allMenuIcon} />
@@ -285,6 +287,7 @@ export default class Main extends Component {
             onTimerPress={this.handleTimerPress}
             second={second}
             timer={timer}
+            onResetTimer={this.handleResetTimer}
             verticalActive={verticalActive}
             onAnimatedPress={this.handleAnimationPress}
             onCreatePin={this.handleSetDataToState}
@@ -355,7 +358,8 @@ const styles = StyleSheet.create({
     height: 35
   },
   allMenuIcon: {
-    width: 30
+    marginLeft: 3,
+    width: 25
   },
   fullScreenButton: {
     position: 'absolute',
