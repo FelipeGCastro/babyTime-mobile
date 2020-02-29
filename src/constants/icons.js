@@ -13,8 +13,10 @@ import pin from 'src/assets/pin.png'
 import baby from 'src/assets/baby.png'
 import woman from 'src/assets/woman.png'
 import bottle from 'src/assets/bottle.png'
+import leftArrow from 'src/assets/leftClose.png'
 import bowl from 'src/assets/super-bowl.png'
 import pooAndPee from 'src/assets/poo-and-pee.png'
+import allMenu from 'src/assets/allMenu.png'
 
 const icons = {
   breast,
@@ -40,7 +42,9 @@ const icons = {
   baby,
   mom: woman,
   woman,
-  pause
+  leftArrow,
+  pause,
+  allMenu
 }
 
 export default icons

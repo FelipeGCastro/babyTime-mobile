@@ -12,8 +12,7 @@ const menuList = [
   'sleep',
   'diaper',
   'note',
-  'bath',
-  'all'
+  'bath'
 ]
 export default class SideScreen extends Component {
   state = {

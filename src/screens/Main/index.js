@@ -1,12 +1,26 @@
 import React, { Component } from 'react'
-import { Animated, LayoutAnimation, View, StyleSheet, TouchableOpacity, StatusBar, Image, Dimensions, Platform } from 'react-native'
+import {
+  Animated,
+  LayoutAnimation,
+  View, StyleSheet,
+  TouchableOpacity,
+  StatusBar,
+  Image,
+  Dimensions,
+  Platform,
+  UIManager
+} from 'react-native'
 import BackgroundTimer from 'react-native-background-timer'
-import { colors, getData, changePins, removePin } from 'src/constants'
-import LeftClose from 'src/assets/leftClose.png'
+import { colors, getData, icons, changePins, removePin } from 'src/constants'
 import ButtonsActions from 'src/components/ButtonsActions'
 import CreatePin from 'src/screens/CreatePin'
 import SideScreen from 'src/screens/SideScreen'
 import TimeLine from './TimeLine'
+if (Platform.OS === 'android') {
+  if (UIManager.setLayoutAnimationEnabledExperimental) {
+    UIManager.setLayoutAnimationEnabledExperimental(true)
+  }
+}
 
 export default class Main extends Component {
   constructor (props) {
@@ -179,13 +193,14 @@ export default class Main extends Component {
     })
   }
 
-  renderLeftArrow = () => {
+  renderMiddleArrow = (side = false) => {
     return (
       <TouchableOpacity
-        style={styles.leftArrowButton}
-        onPress={() => this.handleAnimationPress('horizontal', 'half')}
+        style={[styles.ArrowButton, styles.rightArrow, side && { bottom: this.state.height / 2.7 }]}
+        onPress={() => side ? this.handleMenuItemPress('all') : this.handleAnimationPress('horizontal', 'half')}
       >
-        <Image source={LeftClose} resizeMode='contain' style={styles.leftArrowIcon} />
+        {side ? <Image source={icons.allMenu} resizeMode='contain' style={styles.allMenuIcon} />
+          : <Image source={icons.leftArrow} resizeMode='contain' style={styles.rightArrowIcon} />}
       </TouchableOpacity>
     )
   }
@@ -196,6 +211,7 @@ export default class Main extends Component {
 
   handleMenuItemPress = async value => {
     this.handleSetDataToState(value)
+    value !== 'all' && LayoutAnimation.easeInEaseOut()
     this.setState({ pinsSelected: value })
     this.handleAnimationPress('horizontal', 'close')
   }
@@ -212,14 +228,18 @@ export default class Main extends Component {
     return checkActive && (
       <TouchableOpacity
         onPress={this.handleCloseEverthing}
-        style={[styles.fullScreenButton, { height, width }]}
+        style={[
+          styles.fullScreenButton,
+          { height, width },
+          horizontalActive !== 100 && { zIndex: 5 }
+        ]}
         activeOpacity={0.7}
       />
     )
   }
 
   render () {
-    const { height, timer, second, horizontalActive, verticalActive, pins, editing, width, pinsSelect } = this.state
+    const { height, timer, second, horizontalActive, verticalActive, pins, editing, width, pinsSelected } = this.state
     return (
       <View style={styles.container}>
         <StatusBar backgroundColor={colors.backgroundColor} barStyle='light-content' />
@@ -229,11 +249,12 @@ export default class Main extends Component {
               pins={pins}
               width={width}
               onChange={this.handleChange}
-              pinsSelect={pinsSelect}
+              pinsSelect={pinsSelected}
               onAnimationPress={this.handleAnimationPress}
             />
 
-            {this.renderLeftArrow()}
+            {pinsSelected !== 'all' && this.renderMiddleArrow(true)}
+            {this.renderMiddleArrow()}
 
             <ButtonsActions
               active={verticalActive !== 100}
@@ -296,29 +317,45 @@ const styles = StyleSheet.create({
   sideContainer: {
     flexGrow: 1
   },
-  leftArrowButton: {
+  ArrowButton: {
     width: 50,
     height: 44,
-    borderBottomLeftRadius: 22,
-    borderTopLeftRadius: 22,
-    borderRightWidth: 0,
     borderWidth: 1.5,
     paddingRight: 5,
     paddingVertical: 5,
-    paddingLeft: 10,
     backgroundColor: colors.backgroundColor,
     borderColor: colors.primaryTextColor,
     position: 'absolute',
     justifyContent: 'center',
-    alignItems: 'flex-start',
-    right: 0
+    alignItems: 'flex-start'
+  },
+  leftArrow: {
+    left: 0,
+    borderBottomRightRadius: 22,
+    borderTopRightRadius: 22,
+    paddingLeft: 5,
+    borderLeftWidth: 0
+  },
+  rightArrow: {
+    right: 0,
+    borderBottomLeftRadius: 22,
+    borderTopLeftRadius: 22,
+    paddingLeft: 10,
+    borderRightWidth: 0
   },
   leftArrowIcon: {
+    width: 35,
+    height: 35
+  },
+  rightArrowIcon: {
     transform: [
       { rotateZ: '180deg' }
     ],
     width: 35,
     height: 35
+  },
+  allMenuIcon: {
+    width: 30
   },
   fullScreenButton: {
     position: 'absolute',
