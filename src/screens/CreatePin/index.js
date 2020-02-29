@@ -7,8 +7,6 @@ import {
   FlatList,
   Text,
   Animated,
-  Platform,
-  UIManager,
   LayoutAnimation
 } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
@@ -26,11 +24,6 @@ const menuList = [
   'bath'
 ]
 
-if (Platform.OS === 'android') {
-  if (UIManager.setLayoutAnimationEnabledExperimental) {
-    UIManager.setLayoutAnimationEnabledExperimental(true)
-  }
-}
 export default class CreatePin extends Component {
   state = {
     checked: false,
@@ -267,7 +260,7 @@ export default class CreatePin extends Component {
 
   handleJustResetTimer = () => {
     this.props.onResetTimer()
-    LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut)
+    LayoutAnimation.easeInEaseOut()
   }
 
   renderResetArrow = () => {

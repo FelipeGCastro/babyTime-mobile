@@ -5,10 +5,9 @@ import {
   View, StyleSheet,
   TouchableOpacity,
   StatusBar,
-  Image,
-  Dimensions,
   Platform,
-  UIManager
+  Image,
+  Dimensions
 } from 'react-native'
 import BackgroundTimer from 'react-native-background-timer'
 import { colors, getData, icons, changePins, removePin } from 'src/constants'
@@ -16,11 +15,6 @@ import ButtonsActions from 'src/components/ButtonsActions'
 import CreatePin from 'src/screens/CreatePin'
 import SideScreen from 'src/screens/SideScreen'
 import TimeLine from './TimeLine'
-if (Platform.OS === 'android') {
-  if (UIManager.setLayoutAnimationEnabledExperimental) {
-    UIManager.setLayoutAnimationEnabledExperimental(true)
-  }
-}
 
 export default class Main extends Component {
   constructor (props) {
@@ -67,7 +61,7 @@ export default class Main extends Component {
     this._interval = BackgroundTimer.setInterval(() => {
       this.setState({
         second: this.state.second + 1
-      }, () => LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut))
+      }, () => LayoutAnimation.easeInEaseOut())
     }, 1000)
   }
 
