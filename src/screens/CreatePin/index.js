@@ -7,6 +7,7 @@ import {
   FlatList,
   Text,
   Animated,
+  Platform,
   LayoutAnimation
 } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
@@ -118,6 +119,7 @@ export default class CreatePin extends Component {
       await AsyncStorage.setItem('@storage_Pins', JSON.stringify(newPin))
       onCreatePin()
       onAnimatedPress('vertical', 'close')
+      this.handleJustResetTimer()
       setTimeout(() => {
         this.resetState()
       }, 800)
@@ -140,10 +142,9 @@ export default class CreatePin extends Component {
   }
 
   handleJustClose = () => {
-    const { onAnimatedPress, onResetTimer } = this.props
+    const { onAnimatedPress } = this.props
     onAnimatedPress('vertical', 'close')
     setTimeout(() => {
-      onResetTimer()
       this.resetState()
     }, 800)
   }
@@ -260,7 +261,9 @@ export default class CreatePin extends Component {
 
   handleJustResetTimer = () => {
     this.props.onResetTimer()
-    LayoutAnimation.easeInEaseOut()
+    if (Platform.OS === 'ios') {
+      LayoutAnimation.easeInEaseOut()
+    }
   }
 
   renderResetArrow = () => {
@@ -269,24 +272,24 @@ export default class CreatePin extends Component {
         style={[styles.ArrowButton, styles.rightArrow]}
         onPress={this.handleJustResetTimer}
       >
-        <Text style={styles.buttonText}>X</Text>
+        <Text style={styles.resetText}>{polyglot.t('reset')}</Text>
       </TouchableOpacity>
     )
   }
 
   render () {
     const { checked } = this.state
-    const { second } = this.props
+    const { second, timer } = this.props
     const secondTimer = Moment('1900-01-01 00:00:00')
       .add(second, 'seconds').format(second > 3599 ? 'HH:mm:ss' : 'mm:ss')
     return (
       <KeyboardAwareScrollView
-        contentContainerStyle={[styles.container, !!second && { justifyContent: 'flex-start' }]}
+        contentContainerStyle={[styles.container, checked && { justifyContent: 'space-between' }]}
         extraScrollHeight={40}
         keyboardShouldPersistTaps='handled'
       >
-        {!!second && (
-          <View style={{ justifyContent: 'center', marginBottom: 20, alignItems: 'center' }}>
+        {(!!second || timer) && (
+          <View style={styles.timerContainer}>
             <Text style={styles.timerText}>{secondTimer}</Text>
             {this.renderResetArrow()}
           </View>
@@ -317,8 +320,13 @@ const styles = StyleSheet.create({
   // PIN PAGE CONTAINER
   container: {
     flexGrow: 1,
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     paddingVertical: 20
+  },
+  timerContainer: {
+    justifyContent: 'center',
+    marginBottom: 20,
+    alignItems: 'center'
   },
   principalMenu: {
     justifyContent: 'center',
@@ -380,8 +388,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     color: colors.primaryTextColor
   },
+  resetText: {
+    color: colors.primaryTextColor
+  },
   ArrowButton: {
-    width: 50,
+    width: 70,
     height: 44,
     borderWidth: 1.5,
     paddingRight: 5,
@@ -396,7 +407,7 @@ const styles = StyleSheet.create({
     right: 0,
     borderBottomLeftRadius: 22,
     borderTopLeftRadius: 22,
-    paddingLeft: 20,
+    paddingLeft: 15,
     borderRightWidth: 0
   },
   stop: {

@@ -18,7 +18,7 @@ const getData = async (type = false) => {
         }
       })
       const sortedGroup = Object.keys(groupsOfDay).sort((a, b) => {
-        return new Moment(a).format('YYYYMMDD') - new Moment(b).format('YYYYMMDD')
+        return new Moment(a, 'DD/MM/YYYY').format('YYYYMMDD') - new Moment(b, 'DD/MM/YYYY').format('YYYYMMDD')
       })
       let groupArray = []
       sortedGroup.map(key => {

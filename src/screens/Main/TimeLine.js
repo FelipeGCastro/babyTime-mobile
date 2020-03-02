@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { View, FlatList, Animated, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import TimeLineItem from './TimeLineItem'
+import TimeLineShortItem from './TimeLineShortItem'
 import { colors } from 'src/constants'
 
 export default class TimeLine extends Component {
@@ -24,14 +25,23 @@ export default class TimeLine extends Component {
     onAnimationPress('horizontal', 'complete')
   }
 
-  renderTimeLine = ({ item, index }) => (
-    <TimeLineItem
-      item={item}
-      index={index}
-      width={this.props.width}
-      onItemPress={this.handleItemPress}
-    />
-  )
+  renderTimeLine = ({ item, index }) => {
+    return this.props.list ? (
+      <TimeLineShortItem
+        item={item}
+        index={index}
+        width={this.props.width}
+        onItemPress={this.handleItemPress}
+      />
+    ) : (
+      <TimeLineItem
+        item={item}
+        index={index}
+        width={this.props.width}
+        onItemPress={this.handleItemPress}
+      />
+    )
+  }
 
   animationPins = (duration = 500) => {
     const { animation } = this.state

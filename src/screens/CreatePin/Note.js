@@ -57,6 +57,7 @@ const styles = StyleSheet.create({
   input: {
     justifyContent: 'flex-start',
     alignItems: 'flex-start',
+    textAlignVertical: 'top',
     minHeight: 150,
     backgroundColor: 'rgba(255,255,255, 0.06)',
     borderRadius: 8,

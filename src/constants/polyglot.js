@@ -27,7 +27,8 @@ const ptBR = {
   deletePinAlertTitle: 'Excluir Pin',
   deletePinAlertMsg: 'Tem certeza que deseja excluir o Pin?',
   cancel: 'Cancelar',
-  confirmDelete: 'Sim'
+  confirmDelete: 'Sim',
+  reset: 'Zerar'
 }
 
 const polyglot = new Polyglot()

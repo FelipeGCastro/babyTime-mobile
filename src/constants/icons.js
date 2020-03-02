@@ -15,6 +15,8 @@ import woman from 'src/assets/woman.png'
 import bottle from 'src/assets/bottle.png'
 import leftArrow from 'src/assets/leftClose.png'
 import bowl from 'src/assets/super-bowl.png'
+import timeLine from 'src/assets/timeLine.png'
+import timeLineList from 'src/assets/timeLineList.png'
 import pooAndPee from 'src/assets/poo-and-pee.png'
 import allMenu from 'src/assets/allMenu.png'
 
@@ -38,6 +40,8 @@ const icons = {
   pin,
   timer,
   close,
+  timeLine,
+  timeLineList,
   pooAndPee,
   baby,
   mom: woman,

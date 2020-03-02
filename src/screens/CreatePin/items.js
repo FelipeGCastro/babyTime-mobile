@@ -67,8 +67,8 @@ const TimeInputs = ({ type, onHandleChange, startTime, startDate, endTime, endDa
 
       <View style={styles.timerContainer}>
         <Text style={styles.titleTime}>{polyglot.t('begining')}:</Text>
-        {date(startTime, 'time', polyglot.t('hour'), onHandleChange('startTime'), 'HH:mm', null)}
-        {date(startDate, 'date', polyglot.t('date'), onHandleChange('startDate'), dateFormat, null)}
+        {date(startTime, 'time', polyglot.t('hour'), onHandleChange('startTime'), 'HH:mm', undefined)}
+        {date(startDate, 'date', polyglot.t('date'), onHandleChange('startDate'), dateFormat, undefined)}
 
       </View>
 

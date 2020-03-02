@@ -29,6 +29,7 @@ export default class Main extends Component {
       pinsSelected: 'all',
       editing: false,
       pins: [],
+      list: false,
       timer: false,
       second: 0
     }
@@ -61,7 +62,11 @@ export default class Main extends Component {
     this._interval = BackgroundTimer.setInterval(() => {
       this.setState({
         second: this.state.second + 1
-      }, () => LayoutAnimation.easeInEaseOut())
+      }, () => {
+        if (Platform.OS === 'ios') {
+          LayoutAnimation.easeInEaseOut()
+        }
+      })
     }, 1000)
   }
 
@@ -234,8 +239,32 @@ export default class Main extends Component {
     )
   }
 
+  renderTimeLineIcon = () => {
+    const { list } = this.state
+    return (
+      <TouchableOpacity
+        style={styles.timeLineButton}
+        activeOpacity={0.7}
+        onPress={() => this.setState({ list: !list })}
+      >
+        <Image source={list ? icons.timeLine : icons.timeLineList} resizeMode='contain' style={styles.timeLineIcon} />
+      </TouchableOpacity>
+    )
+  }
+
   render () {
-    const { height, timer, second, horizontalActive, verticalActive, pins, editing, width, pinsSelected } = this.state
+    const {
+      height,
+      timer,
+      second,
+      horizontalActive,
+      verticalActive,
+      pins,
+      editing,
+      width,
+      list,
+      pinsSelected
+    } = this.state
     return (
       <View style={styles.container}>
         <StatusBar backgroundColor={colors.backgroundColor} barStyle='light-content' />
@@ -245,6 +274,7 @@ export default class Main extends Component {
               pins={pins}
               width={width}
               onChange={this.handleChange}
+              list={list}
               pinsSelect={pinsSelected}
               onAnimationPress={this.handleAnimationPress}
             />
@@ -259,6 +289,7 @@ export default class Main extends Component {
               onTimerPress={this.handleTimerPress}
               onPinPress={this.handleAnimationPress}
             />
+            {this.renderTimeLineIcon()}
             {this.renderFullScreenButton()}
           </Animated.View>
 
@@ -339,6 +370,23 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 22,
     paddingLeft: 10,
     borderRightWidth: 0
+  },
+  timeLineButton: {
+    width: 50,
+    height: 50,
+    borderWidth: 1.5,
+    right: 15,
+    top: 30,
+    borderRadius: 25,
+    backgroundColor: colors.backgroundColor,
+    borderColor: colors.primaryTextColor,
+    position: 'absolute',
+    justifyContent: 'center',
+    alignItems: 'flex-start'
+  },
+  timeLineIcon: {
+    width: 45,
+    height: 45
   },
   leftArrowIcon: {
     width: 35,
