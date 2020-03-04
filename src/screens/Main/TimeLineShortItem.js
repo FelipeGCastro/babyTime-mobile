@@ -26,11 +26,10 @@ export default function TimeLineShortItem ({ item, index, width, onItemPress }) 
       { width }
     ]}
     >
-      <View style={styles.centerContainer}>
+      <View style={[styles.centerContainer, isDay && { marginLeft: 2 }]}>
         <View
           style={[styles.arrowDown,
             { backgroundColor: colors[item.type] },
-            isDay && { marginLeft: 5 },
             index === 0 && styles.arrowDownRound]}
         >
           <Image source={LeftClose} resizeMode='contain' style={styles.downIcon} />
@@ -92,27 +91,15 @@ const styles = StyleSheet.create({
     alignItems: 'center'
   },
   pointStyle: {
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 3
-    },
-    shadowOpacity: 0.5,
-    shadowRadius: 3.84,
-    elevation: 5,
     width: 30,
-    padding: 5,
-    marginLeft: 10,
+    marginLeft: 5,
     marginHorizontal: 5,
     height: 30,
-    borderRadius: 23,
-    borderWidth: 5,
-    // backgroundColor: colors.primaryTextColor,
-    justifyContent: 'center',
-    alignItems: 'center'
+    borderRadius: 15
   },
   pinTimeIcon: {
-    width: 25
+    width: 25,
+    maxHeight: 30
   },
   arrowDown: {
     flex: 1,

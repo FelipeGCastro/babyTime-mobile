@@ -1,6 +1,7 @@
 
 const colors = {
   backgroundColor: '#080006',
+  // backgroundColor: '#353839',
   feedColor: '#F15152',
   diaperColor: '#F7B32B',
   sleepColor: '#A846A0',
