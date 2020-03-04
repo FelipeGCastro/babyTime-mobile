@@ -7,7 +7,14 @@ const getData = async (type = false) => {
     const value = await AsyncStorage.getItem('@storage_Pins')
     if (value !== null) {
       const groupsOfDay = {}
-      JSON.parse(value).map(item => {
+      const sortedValue = JSON.parse(value).sort((a, b) => {
+        const aTime = Moment(a.startTime, 'HH:mm')
+        const bTime = Moment(b.startTime, 'HH:mm')
+        const aDate = Moment(a.startDate, 'DD/MM/YYYY').format('YYYYMMDD')
+        const bDate = Moment(b.startDate, 'DD/MM/YYYY').format('YYYYMMDD')
+        return aDate - bDate || aTime - bTime
+      })
+      sortedValue.map(item => {
         const checkType = !type || type === 'all' ? true : type === item.type
         const startDate = item.startDate
         const dayObj = { id: v4(), startTime: startDate, type: 'day' }
@@ -18,7 +25,7 @@ const getData = async (type = false) => {
         }
       })
       const sortedGroup = Object.keys(groupsOfDay).sort((a, b) => {
-        return new Moment(a, 'DD/MM/YYYY').format('YYYYMMDD') - new Moment(b, 'DD/MM/YYYY').format('YYYYMMDD')
+        return Moment(a, 'DD/MM/YYYY').format('YYYYMMDD') - Moment(b, 'DD/MM/YYYY').format('YYYYMMDD')
       })
       let groupArray = []
       sortedGroup.map(key => {
