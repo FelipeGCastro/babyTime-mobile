@@ -16,7 +16,7 @@ export default function ButtonsActions ({ onPinPress, onTimerPress, active, time
           <Image
             source={!timer ? (second === 0) ? icons.timer : icons.play : icons.pause}
             resizeMode='contain'
-            style={[styles.buttonsIcon, (timer && second > 0) && { height: 35 }]}
+            style={[styles.buttonsIcon, (timer || second > 0) && { height: 35 }]}
           />
         </TouchableOpacity>
         <TouchableOpacity
