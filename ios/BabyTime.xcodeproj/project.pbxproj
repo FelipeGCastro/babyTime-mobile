@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		00E356F31AD99517003FC87E /* BabyTimeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* BabyTimeTests.m */; };
+		01F4455A15D73CD9CBE0632F /* libPods-BabyTime.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 13443D90E9497029B24A760D /* libPods-BabyTime.a */; };
 		13B07FBC1A68108700A75B9A /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 13B07FB01A68108700A75B9A /* AppDelegate.m */; };
 		13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB11A68108700A75B9A /* LaunchScreen.xib */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
@@ -19,7 +20,6 @@
 		2DCD954D1E0B4F2C00145EB5 /* BabyTimeTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* BabyTimeTests.m */; };
 		365F968DA2F0816148AE150B /* libPods-BabyTimeTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 128A61240A13D0938BA74BBC /* libPods-BabyTimeTests.a */; };
 		CB50A922AA4A8F1DF04B4615 /* libPods-BabyTime-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D9D4CC8DDE8CAFFAC54103C5 /* libPods-BabyTime-tvOS.a */; };
-		CB9B997BAFBF64191AA576CC /* libPods-BabyTime.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 13443D90E9497029B24A760D /* libPods-BabyTime.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -82,7 +82,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CB9B997BAFBF64191AA576CC /* libPods-BabyTime.a in Frameworks */,
+				01F4455A15D73CD9CBE0632F /* libPods-BabyTime.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -596,7 +596,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BabyTime.app/BabyTime";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Baby Timing.app/Baby Timing";
 			};
 			name = Debug;
 		};
@@ -616,7 +616,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.reactjs.native.example.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BabyTime.app/BabyTime";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Baby Timing.app/Baby Timing";
 			};
 			name = Release;
 		};
