@@ -8,7 +8,8 @@ import {
   Text,
   Animated,
   Platform,
-  LayoutAnimation
+  LayoutAnimation,
+  Alert
 } from 'react-native'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
 import AsyncStorage from '@react-native-community/async-storage'
@@ -124,7 +125,19 @@ export default class CreatePin extends Component {
         this.resetState()
       }, 800)
     } catch (e) {
-      console.log(e)
+      Alert.alert(
+        'Algo Deu errado',
+        'Aconteceu um erro ao guardar o seu Pin, tente novamente mais tarde!',
+        [
+          {
+            text: 'Cancel',
+            onPress: () => console.log('Cancel Pressed'),
+            style: 'cancel'
+          },
+          { text: 'OK', onPress: () => console.log('OK Pressed') }
+        ],
+        { cancelable: false }
+      )
     }
   }
 

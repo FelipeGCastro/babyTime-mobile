@@ -114,7 +114,6 @@ export default class SideScreen extends Component {
       endTime: endTime || null,
       ml
     }
-    console.log(this.verifyPin(pinsObj, editing))
     if (this.verifyPin(pinsObj, editing)) {
       this.handleJustClose()
       return

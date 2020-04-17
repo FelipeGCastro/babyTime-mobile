@@ -7,7 +7,8 @@ import {
   StatusBar,
   Platform,
   Image,
-  Dimensions
+  Dimensions,
+  Alert
 } from 'react-native'
 import BackgroundTimer from 'react-native-background-timer'
 import { colors, getData, icons, changePins, removePin } from 'src/constants'
@@ -81,7 +82,23 @@ export default class Main extends Component {
 
   handleSetDataToState = async (type = false) => {
     const pins = await getData(type)
-    !!pins && this.setState({ pins })
+    if (pins === 'error') {
+      Alert.alert(
+        'Algo Deu errado',
+        'Aconteceu um erro ao buscar os seus pins, tente novamente mais tarde!',
+        [
+          {
+            text: 'Cancel',
+            onPress: () => console.log('Cancel Pressed'),
+            style: 'cancel'
+          },
+          { text: 'OK', onPress: () => console.log('OK Pressed') }
+        ],
+        { cancelable: false }
+      )
+    } else {
+      !!pins && this.setState({ pins })
+    }
   }
 
   handleChangePins = async (itemFilter) => {

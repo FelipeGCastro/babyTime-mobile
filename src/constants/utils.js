@@ -14,7 +14,6 @@ const getData = async (type = false) => {
         const bDate = Moment(b.startDate, 'DD/MM/YYYY').format('YYYYMMDD')
         return aDate - bDate || aTime - bTime
       })
-      console.log('getData')
       sortedValue.map(item => {
         const checkType = !type || type === 'all' ? true : type === item.type
         const startDate = item.startDate
@@ -38,6 +37,7 @@ const getData = async (type = false) => {
   } catch (e) {
     // error reading value
     console.log(e)
+    return 'error'
   }
 }
 
