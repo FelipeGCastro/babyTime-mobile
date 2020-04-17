@@ -73,7 +73,7 @@ export default class TimeLine extends Component {
         {pins.length === 0
           ? (
             <TouchableOpacity>
-              <Text style={styles.noPinsText}>Ainda não tens Pins</Text>
+              <Text style={styles.noPinsText}>Você ainda não tem Pins</Text>
             </TouchableOpacity>
           )
           : (
