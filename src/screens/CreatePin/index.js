@@ -155,11 +155,14 @@ export default class CreatePin extends Component {
   }
 
   handleJustClose = () => {
-    const { onAnimatedPress } = this.props
+    const { onAnimatedPress, second, timer } = this.props
     onAnimatedPress('vertical', 'close')
-    setTimeout(() => {
-      this.resetState()
-    }, 800)
+    if (!!second || timer) {
+    } else {
+      setTimeout(() => {
+        this.resetState()
+      }, 800)
+    }
   }
 
   renderMenuItem = ({ item, index }) => {

@@ -20,7 +20,7 @@ export default function ButtonsActions ({ onPinPress, onTimerPress, active, time
           />
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => onPinPress('vertical', 'half')}
+          onPress={() => onPinPress('vertical', (!!second || timer) && !active ? 'complete' : 'half')}
           activeOpacity={0.7}
           style={[styles.buttonContainer, (active || seconds) && styles.activeButton]}
         >
