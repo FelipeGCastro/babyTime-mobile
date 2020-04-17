@@ -31,8 +31,7 @@ const getData = async (type = false) => {
       sortedGroup.map(key => {
         groupArray = [...groupArray, ...groupsOfDay[key]]
       })
-      console.tron.log(groupArray.reverse())
-      return groupArray
+      return groupArray.reverse()
     }
   } catch (e) {
     // error reading value
@@ -56,7 +55,6 @@ const changePins = async (item) => {
     }
     return true
   } catch (error) {
-    console.tron.log(error)
     return false
   }
 }
@@ -72,7 +70,6 @@ const removePin = async (id) => {
     }
     return true
   } catch (error) {
-    console.tron.log(error)
     return false
   }
 }

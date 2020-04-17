@@ -38,8 +38,7 @@ const Diaper = ({
             timer={timer}
             type='diaper'
             startDate={startDate}
-            endTime={endTime}
-            endDate={endDate}
+            endTime='none'
           />
           <Comments comments={comments} onHandleChange={onHandleChange} />
         </>

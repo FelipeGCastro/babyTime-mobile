@@ -71,12 +71,12 @@ const TimeInputs = ({ type, onHandleChange, startTime, startDate, endTime, endDa
         {date(startDate, 'date', polyglot.t('date'), onHandleChange('startDate'), dateFormat, undefined)}
 
       </View>
-
-      <View style={styles.timerContainer}>
-        <Text style={styles.titleTime}>{polyglot.t('end')}:</Text>
-        {date(endTime, 'time', polyglot.t('hour'), onHandleChange('endTime'), 'HH:mm', startTime)}
-        {date(endDate, 'date', polyglot.t('date'), onHandleChange('endDate'), dateFormat, startDate)}
-      </View>
+      {endTime !== 'none' && (
+        <View style={styles.timerContainer}>
+          <Text style={styles.titleTime}>{polyglot.t('end')}:</Text>
+          {date(endTime, 'time', polyglot.t('hour'), onHandleChange('endTime'), 'HH:mm', startTime)}
+          {date(endDate, 'date', polyglot.t('date'), onHandleChange('endDate'), dateFormat, startDate)}
+        </View>)}
     </View>
   )
 }

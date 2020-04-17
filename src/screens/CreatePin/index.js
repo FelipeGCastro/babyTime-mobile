@@ -22,8 +22,8 @@ const menuList = [
   'feed',
   'sleep',
   'diaper',
-  'note',
-  'bath'
+  'bath',
+  'note'
 ]
 
 export default class CreatePin extends Component {
