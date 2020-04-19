@@ -26,7 +26,10 @@
     "react-native-screens": "^2.0.0-alpha.32",
     "react-navigation": "^4.0.10",
     "react-navigation-stack": "^2.0.16",
+    "react-redux": "^7.2.0",
     "reactotron-react-native": "^4.0.3",
+    "redux": "^4.0.5",
+    "redux-thunk": "^2.3.0",
     "uuid": "^3.4.0"
   },
   "devDependencies": {

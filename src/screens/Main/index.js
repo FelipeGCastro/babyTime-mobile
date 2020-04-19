@@ -1,4 +1,5 @@
-import React, { Component } from 'react'
+import React, { useCallback, useState, useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import {
   Animated,
   LayoutAnimation,
@@ -16,71 +17,68 @@ import ButtonsActions from 'src/components/ButtonsActions'
 import CreatePin from 'src/screens/CreatePin'
 import SideScreen from 'src/screens/SideScreen'
 import TimeLine from './TimeLine'
+import { MainActions } from 'src/redux'
 
-export default class Main extends Component {
-  constructor (props) {
-    super(props)
-    this.state = {
-      height: Dimensions.get('window').height,
-      width: Dimensions.get('window').width,
-      verticalAnimation: new Animated.Value(100),
-      horizontalAnimation: new Animated.Value(100),
-      verticalActive: 100,
-      horizontalActive: 100,
-      pinsSelected: 'all',
-      editing: false,
-      pins: [],
-      list: false,
-      timer: false,
-      second: 0
+export default function Main () {
+  const [width, setWidth] = useState(Dimensions.get('window').width)
+  const [height, setHeight] = useState(Dimensions.get('window').height)
+  const {
+    verticalAnimation,
+    horizontalAnimation,
+    verticalActive,
+    horizontalActive,
+    pinsSelected,
+    editing,
+    pins,
+    list,
+    timer,
+    second
+  } = useSelector(state => state.main)
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    Dimensions.addEventListener('change', handler)
+    handleSetDataToState('all')
+    return () => {
+      Dimensions.removeEventListener('change', handler)
     }
-  }
+  }, [])
 
-  componentDidMount = () => {
-    Dimensions.addEventListener('change', this.handler)
-    this.handleSetDataToState('all')
-  }
-
-  _interval: any
-
-  handleTimerPress = () => {
-    const { timer, second, verticalActive } = this.state
+  const handleTimerPress = useCallback(() => {
     if (timer) {
-      this.handleStopTimer()
+      handleStopTimer()
     } else {
-      this.handleStartTimer()
+      handleStartTimer()
       if (second === 0 && (verticalActive === 100)) {
-        this.handleAnimationPress('vertical', 'half')
+        handleAnimationPress('vertical', 'half')
       }
     }
-    this.setState({ timer: !timer })
-  }
+    dispatch(MainActions.handleChange('timer', !timer))
+  }, [dispatch])
 
-  handleStartTimer = () => {
-    if (Platform.OS === 'ios') {
-      BackgroundTimer.start()
-    }
-    this._interval = BackgroundTimer.setInterval(() => {
-      this.setState({
-        second: this.state.second + 1
-      }, () => {
-        if (Platform.OS === 'ios') {
-          LayoutAnimation.easeInEaseOut()
-        }
-      })
+  const handleStartTimer = () => {
+    // if (Platform.OS === 'ios') {
+    //   BackgroundTimer.start()
+    // }
+    BackgroundTimer.runBackgroundTimer(() => {
+      dispatch(MainActions.addSec())
+      if (Platform.OS === 'ios') {
+        LayoutAnimation.easeInEaseOut()
+      }
     }, 1000)
   }
 
-  handleResetTimer = () => {
-    this.setState({ second: 0, timer: false })
-    BackgroundTimer.clearInterval(this._interval)
+  const handleResetTimer = () => {
+    dispatch(MainActions.handleChange('second', 0))
+    dispatch(MainActions.handleChange('timer', false))
+    BackgroundTimer.stopBackgroundTimer()
   }
 
-  handleStopTimer = () => {
-    BackgroundTimer.clearInterval(this._interval)
+  const handleStopTimer = () => {
+    BackgroundTimer.stopBackgroundTimer()
   }
 
-  handleSetDataToState = async (type = false) => {
+  const handleSetDataToState = async (type = false) => {
     const pins = await getData(type)
     if (pins === 'error') {
       Alert.alert(
@@ -97,44 +95,26 @@ export default class Main extends Component {
         { cancelable: false }
       )
     } else {
-      !!pins && this.setState({ pins })
+      !!pins && dispatch(MainActions.handleChange('pins', pins))
     }
   }
 
-  handleChangePins = async (itemFilter) => {
-    const pins = await getData()
-    if (itemFilter === 'all') {
-      this.setState({ pins })
-    } else {
-      const newPins = pins.filter((item, index) => {
-        if (item.type === itemFilter) {
-          return item
-        }
-      })
-      this.setState({ pins: newPins })
-    }
-  }
-
-  handleEditingPins = async item => {
+  const handleEditingPins = async item => {
     const result = await changePins(item)
-    result && this.handleSetDataToState(this.state.pinsSelected)
+    result && handleSetDataToState(pinsSelected)
   }
 
-  handleRemovePin = async id => {
+  const handleRemovePin = async id => {
     const result = await removePin(id)
-    result && this.handleSetDataToState(this.state.pinsSelected)
+    result && handleSetDataToState(pinsSelected)
   }
 
-  componentWillUnmount = () => {
-    Dimensions.removeEventListener('change', this.handler)
-  }
+  const handler = useCallback(({ window }) => {
+    setHeight(window.height)
+    setWidth(window.width)
+  }, [setHeight, setWidth])
 
-  handler = ({ window }) => {
-    this.setState({ height: window.height, width: window.width })
-  }
-
-  handleAnimationPress = (direction, position) => {
-    const { horizontalActive, verticalActive, horizontalAnimation, verticalAnimation } = this.state
+  const handleAnimationPress = useCallback((direction, position) => {
     const active = direction === 'vertical' ? verticalActive : horizontalActive
     const animation = direction === 'vertical' ? verticalAnimation : horizontalAnimation
     const duration = direction === 'vertical' ? 900 : 800
@@ -151,20 +131,17 @@ export default class Main extends Component {
     }).start(() => {
       if (finalValue[position] === 100) {
         // if (direction === 'vertical') {
-        //   this.handleResetTimer()
+        //   handleResetTimer()
         // }
         if (direction === 'horizontal') {
-          this.setState({ editing: false })
+          dispatch(MainActions.handleChange('editing', false))
         }
       }
     })
-    this.setState(direction === 'vertical'
-      ? { verticalActive: finalValue[position] }
-      : { horizontalActive: finalValue[position] })
-  }
+    dispatch(MainActions.handleChange(direction === 'vertical' ? 'verticalActive' : 'horizontalActive', finalValue[position]))
+  }, [dispatch, verticalActive, verticalAnimation, horizontalActive, horizontalAnimation])
 
-  handleTransform = (name) => {
-    const { height, width, horizontalAnimation, verticalAnimation } = this.state
+  const handleTransform = useCallback((name) => {
     const animationObj = {
       horizontal: {
         animation: horizontalAnimation,
@@ -207,15 +184,15 @@ export default class Main extends Component {
         }
       ]
     })
-  }
+  }, [horizontalAnimation, verticalAnimation])
 
-  renderMiddleArrow = (side = false) => {
+  function renderMiddleArrow (side = false) {
     return (
       <TouchableOpacity
         style={[styles.ArrowButton,
           styles.rightArrow,
-          side && { bottom: this.state.height / 2.7 }]}
-        onPress={() => side ? this.handleMenuItemPress('all') : this.handleAnimationPress('horizontal', 'half')}
+          side && { bottom: height / 2.7 }]}
+        onPress={() => side ? handleMenuItemPress('all') : handleAnimationPress('horizontal', 'half')}
       >
         {side ? <Image source={icons.allMenu} resizeMode='contain' style={styles.allMenuIcon} />
           : <Image source={icons.leftArrow} resizeMode='contain' style={styles.rightArrowIcon} />}
@@ -223,29 +200,27 @@ export default class Main extends Component {
     )
   }
 
-  handleChange = name => value => {
-    this.setState({ [name]: value })
-  }
+  const handleChange = useCallback(name => value => {
+    dispatch(MainActions.handleChange(name, value))
+  }, [dispatch])
 
-  handleMenuItemPress = async value => {
-    this.handleSetDataToState(value)
+  const handleMenuItemPress = async value => {
+    handleSetDataToState(value)
     value !== 'all' && LayoutAnimation.easeInEaseOut()
-    this.setState({ pinsSelected: value })
-    this.handleAnimationPress('horizontal', 'close')
+    dispatch(MainActions.handleChange('pinsSelected', value))
+    handleAnimationPress('horizontal', 'close')
   }
 
-  handleCloseEverthing = () => {
-    const { verticalActive, horizontalActive } = this.state
-    horizontalActive !== 100 && this.handleAnimationPress('horizontal', 'close')
-    verticalActive !== 100 && this.handleAnimationPress('vertical', 'close')
-  }
+  const handleCloseEverthing = useCallback(() => {
+    horizontalActive !== 100 && handleAnimationPress('horizontal', 'close')
+    verticalActive !== 100 && handleAnimationPress('vertical', 'close')
+  }, [horizontalActive, verticalActive])
 
-  renderFullScreenButton = () => {
-    const { verticalActive, horizontalActive, height, width } = this.state
+  function renderFullScreenButton (verticalActive, horizontalActive) {
     const checkActive = verticalActive !== 100 || horizontalActive !== 100
     return checkActive && (
       <TouchableOpacity
-        onPress={this.handleCloseEverthing}
+        onPress={handleCloseEverthing}
         style={[
           styles.fullScreenButton,
           { height, width },
@@ -256,89 +231,73 @@ export default class Main extends Component {
     )
   }
 
-  renderTimeLineIcon = () => {
-    const { list } = this.state
+  function renderTimeLineIcon () {
     return (
       <TouchableOpacity
         style={styles.timeLineButton}
         activeOpacity={0.7}
-        onPress={() => this.setState({ list: !list })}
+        onPress={() => dispatch(MainActions.handleChange('list', !list))}
       >
         <Image source={list ? icons.timeLine : icons.timeLineList} resizeMode='contain' style={styles.timeLineIcon} />
       </TouchableOpacity>
     )
   }
-
-  render () {
-    const {
-      height,
-      timer,
-      second,
-      horizontalActive,
-      verticalActive,
-      pins,
-      editing,
-      width,
-      list,
-      pinsSelected
-    } = this.state
-    return (
-      <View style={styles.container}>
-        <StatusBar backgroundColor={colors.backgroundColor} barStyle='light-content' />
-        <Animated.View style={[styles.mainContainer, { height }, this.handleTransform('vertical')]}>
-          <Animated.View style={[styles.timeLineContainer, { width }, this.handleTransform('horizontal')]}>
-            <TimeLine
-              pins={pins}
-              width={width}
-              onChange={this.handleChange}
-              list={list}
-              pinsSelect={pinsSelected}
-              onAnimationPress={this.handleAnimationPress}
-            />
-
-            {pinsSelected !== 'all' && this.renderMiddleArrow(true)}
-            {this.renderMiddleArrow()}
-
-            <ButtonsActions
-              active={verticalActive !== 100}
-              second={second}
-              timer={timer}
-              onTimerPress={this.handleTimerPress}
-              onPinPress={this.handleAnimationPress}
-            />
-            {this.renderTimeLineIcon()}
-            {this.renderFullScreenButton()}
-          </Animated.View>
-
-          <Animated.View style={[styles.sideContainer, { width }, this.handleTransform('side')]}>
-            <SideScreen
-              editing={editing}
-              onChange={this.handleChange}
-              onRemovePin={this.handleRemovePin}
-              onEditingChange={this.handleEditingPins}
-              horizontalActive={horizontalActive}
-              onAnimatedPress={this.handleAnimationPress}
-              onItemPress={this.handleMenuItemPress}
-            />
-          </Animated.View>
-
-        </Animated.View>
-        <Animated.View style={[styles.pinPageContainer, { height }, this.handleTransform('below')]}>
-
-          <CreatePin
-            onTimerPress={this.handleTimerPress}
-            second={second}
-            timer={timer}
-            onResetTimer={this.handleResetTimer}
-            verticalActive={verticalActive}
-            onAnimatedPress={this.handleAnimationPress}
-            onCreatePin={this.handleSetDataToState}
+  return (
+    <View style={styles.container}>
+      <StatusBar backgroundColor={colors.backgroundColor} barStyle='light-content' />
+      <Animated.View style={[styles.mainContainer, { height }, handleTransform('vertical')]}>
+        <Animated.View style={[styles.timeLineContainer, { width }, handleTransform('horizontal')]}>
+          <TimeLine
+            pins={pins}
+            width={width}
+            onChange={handleChange}
+            list={list}
+            pinsSelect={pinsSelected}
+            onAnimationPress={handleAnimationPress}
           />
 
+          {pinsSelected !== 'all' && renderMiddleArrow(true)}
+          {renderMiddleArrow()}
+
+          <ButtonsActions
+            active={verticalActive !== 100}
+            second={second}
+            timer={timer}
+            onTimerPress={handleTimerPress}
+            onPinPress={handleAnimationPress}
+          />
+          {renderTimeLineIcon()}
+          {renderFullScreenButton(verticalActive, horizontalActive)}
         </Animated.View>
-      </View>
-    )
-  }
+
+        <Animated.View style={[styles.sideContainer, { width }, handleTransform('side')]}>
+          <SideScreen
+            editing={editing}
+            onChange={handleChange}
+            onRemovePin={handleRemovePin}
+            onEditingChange={handleEditingPins}
+            horizontalActive={horizontalActive}
+            onAnimatedPress={handleAnimationPress}
+            onItemPress={handleMenuItemPress}
+          />
+        </Animated.View>
+
+      </Animated.View>
+      <Animated.View style={[styles.pinPageContainer, { height }, handleTransform('below')]}>
+
+        <CreatePin
+          onTimerPress={handleTimerPress}
+          second={second}
+          timer={timer}
+          onResetTimer={handleResetTimer}
+          verticalActive={verticalActive}
+          onAnimatedPress={handleAnimationPress}
+          onCreatePin={handleSetDataToState}
+        />
+
+      </Animated.View>
+    </View>
+  )
 }
 
 const styles = StyleSheet.create({
